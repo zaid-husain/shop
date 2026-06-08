@@ -1,0 +1,14 @@
+
+-- Lock search_path on remaining functions
+ALTER FUNCTION public.touch_updated_at() SET search_path = public;
+
+-- Trigger-only functions: revoke from everyone
+REVOKE ALL ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.decrement_stock() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.touch_updated_at() FROM PUBLIC, anon, authenticated;
+
+-- Helper functions used inside RLS: restrict to authenticated only
+REVOKE ALL ON FUNCTION public.has_role(UUID, public.app_role) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.current_shop_id() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.has_role(UUID, public.app_role) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.current_shop_id() TO authenticated;
