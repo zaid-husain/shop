@@ -171,55 +171,206 @@ function BillingPage() {
   }
 
   function generatePdf(invoiceNumber: string): jsPDF {
+    // A5 portrait: 148 x 210 mm
     const doc = new jsPDF({ unit: "mm", format: "a5" });
-    const shopName = "Bharat Auto Parts";
+    const W = 148;
+    const M = 10; // margin
+    const RIGHT = W - M;
+
+    // Brand palette
+    const NAVY: [number, number, number] = [11, 31, 58];
+    const AMBER: [number, number, number] = [217, 152, 38];
+    const INK: [number, number, number] = [30, 30, 30];
+    const MUTED: [number, number, number] = [110, 110, 110];
+    const LINE: [number, number, number] = [220, 220, 220];
+    const BG: [number, number, number] = [248, 246, 240];
+
+    // ===== Header band =====
+    doc.setFillColor(...NAVY);
+    doc.rect(0, 0, W, 30, "F");
+    doc.setFillColor(...AMBER);
+    doc.rect(0, 30, W, 1.4, "F");
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
+    doc.text("BHARAT AUTO PARTS", W / 2, 13, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.text("Complete Auto Parts Solution", W / 2, 18.5, { align: "center" });
+    doc.setFontSize(7.5);
+    doc.text("Near Bus Stand, Balapur, Akola", W / 2, 22.5, { align: "center" });
+    doc.text("+91 9096731931  •  8668528219", W / 2, 26.2, { align: "center" });
+
+    // ===== Invoice meta strip =====
+    let y = 38;
+    doc.setTextColor(...INK);
     doc.setFont("helvetica", "bold");
-    doc.text(shopName, 10, 14);
+    doc.setFontSize(11);
+    doc.text("INVOICE", M, y);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(...MUTED);
+    doc.text(`#${invoiceNumber}`, M, y + 4.2);
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("en-IN", {
+      day: "2-digit", month: "short", year: "numeric",
+    });
+    const timeStr = now.toLocaleTimeString("en-IN", {
+      hour: "2-digit", minute: "2-digit", hour12: true,
+    });
+    doc.setTextColor(...INK);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8.5);
+    doc.text(dateStr, RIGHT, y, { align: "right" });
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(...MUTED);
+    doc.text(timeStr, RIGHT, y + 4.2, { align: "right" });
+
+    y += 9;
+    doc.setDrawColor(...LINE);
+    doc.setLineWidth(0.2);
+    doc.line(M, y, RIGHT, y);
+
+    // ===== Bill To =====
+    y += 5.5;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(...AMBER);
+    doc.text("BILL TO", M, y);
+    y += 4.5;
+    doc.setTextColor(...INK);
     doc.setFontSize(10);
+    const custName = customer?.name ?? (walkInName.trim() || "Walk-in Customer");
+    doc.text(custName, M, y);
     doc.setFont("helvetica", "normal");
-    doc.text(`Invoice: ${invoiceNumber}`, 10, 22);
-    doc.text(`Date: ${new Date().toLocaleString("en-IN")}`, 10, 27);
-    const custName = customer?.name ?? walkInName ?? "Walk-in";
-    doc.text(`Customer: ${custName}`, 10, 32);
-    if (customer?.mobile || walkInMobile) {
-      doc.text(`Mobile: ${customer?.mobile ?? walkInMobile}`, 10, 37);
+    doc.setFontSize(8.5);
+    doc.setTextColor(...MUTED);
+    const mobile = customer?.mobile ?? walkInMobile;
+    if (mobile) {
+      y += 4;
+      doc.text(`Mobile: ${mobile}`, M, y);
     }
-    let y = 46;
+    const vehicle = (customer as any)?.vehicle_number;
+    const vmodel = (customer as any)?.vehicle_model;
+    if (vehicle || vmodel) {
+      y += 4;
+      const v = [vmodel, vehicle ? `(${vehicle})` : ""].filter(Boolean).join(" ");
+      doc.text(`Vehicle: ${v}`, M, y);
+    }
+
+    // ===== Items table =====
+    y += 7;
+    // Column x positions
+    const cSn = M + 1;
+    const cItem = M + 9;
+    const cQty = RIGHT - 48;
+    const cRate = RIGHT - 28;
+    const cAmt = RIGHT - 1;
+
+    // Table head
+    doc.setFillColor(...NAVY);
+    doc.rect(M, y, RIGHT - M, 7, "F");
+    doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    doc.text("Item", 10, y);
-    doc.text("Qty", 90, y, { align: "right" });
-    doc.text("Price", 115, y, { align: "right" });
-    doc.text("Total", 140, y, { align: "right" });
-    doc.line(10, y + 1.5, 140, y + 1.5);
-    y += 6;
+    doc.setFontSize(8.2);
+    doc.text("#", cSn, y + 4.7);
+    doc.text("ITEM", cItem, y + 4.7);
+    doc.text("QTY", cQty, y + 4.7, { align: "right" });
+    doc.text("RATE", cRate, y + 4.7, { align: "right" });
+    doc.text("AMOUNT", cAmt, y + 4.7, { align: "right" });
+    y += 7;
+
+    // Rows
+    doc.setTextColor(...INK);
     doc.setFont("helvetica", "normal");
-    for (const i of items) {
-      doc.text(i.product_name.slice(0, 40), 10, y);
-      doc.text(String(i.quantity), 90, y, { align: "right" });
-      doc.text(formatINR(i.unit_price), 115, y, { align: "right" });
-      doc.text(formatINR(i.unit_price * i.quantity), 140, y, { align: "right" });
-      y += 5;
-    }
-    doc.line(10, y, 140, y);
-    y += 6;
-    doc.text(`Subtotal: ${formatINR(subtotal)}`, 140, y, { align: "right" });
-    y += 5;
-    if (discountNum > 0) {
-      doc.text(`Discount: -${formatINR(discountNum)}`, 140, y, { align: "right" });
-      y += 5;
-    }
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text(`Total: ${formatINR(total)}`, 140, y, { align: "right" });
-    y += 6;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Paid: ${formatINR(paidNum)}`, 140, y, { align: "right" });
-    y += 5;
-    if (due > 0) doc.text(`Due: ${formatINR(due)}`, 140, y, { align: "right" });
     doc.setFontSize(9);
-    doc.text("Thank you for your business!", 10, 195);
+    items.forEach((i, idx) => {
+      const hasSku = !!i.part_number;
+      const rowH = hasSku ? 9 : 6.5;
+      if (idx % 2 === 1) {
+        doc.setFillColor(...BG);
+        doc.rect(M, y, RIGHT - M, rowH, "F");
+      }
+      doc.setTextColor(...MUTED);
+      doc.setFontSize(8);
+      doc.text(String(idx + 1), cSn, y + 4.2);
+      doc.setTextColor(...INK);
+      doc.setFontSize(9);
+      const nameLines = doc.splitTextToSize(i.product_name, cQty - cItem - 4) as string[];
+      doc.text(nameLines[0] ?? "", cItem, y + 4.2);
+      if (hasSku) {
+        doc.setFontSize(7);
+        doc.setTextColor(...MUTED);
+        doc.text(`SKU: ${i.part_number}`, cItem, y + 7.8);
+        doc.setTextColor(...INK);
+        doc.setFontSize(9);
+      }
+      doc.text(String(i.quantity), cQty, y + 4.2, { align: "right" });
+      doc.text(formatINR(i.unit_price), cRate, y + 4.2, { align: "right" });
+      doc.setFont("helvetica", "bold");
+      doc.text(formatINR(i.unit_price * i.quantity), cAmt, y + 4.2, { align: "right" });
+      doc.setFont("helvetica", "normal");
+      y += rowH;
+    });
+
+    // ===== Totals =====
+    y += 3;
+    doc.setDrawColor(...LINE);
+    doc.line(RIGHT - 60, y, RIGHT, y);
+    y += 5;
+
+    const drawRow = (label: string, value: string, opts?: { bold?: boolean; color?: [number, number, number] }) => {
+      doc.setFont("helvetica", opts?.bold ? "bold" : "normal");
+      doc.setFontSize(opts?.bold ? 10 : 9);
+      doc.setTextColor(...(opts?.color ?? INK));
+      doc.text(label, RIGHT - 60, y);
+      doc.text(value, cAmt, y, { align: "right" });
+      y += opts?.bold ? 6 : 5;
+    };
+
+    drawRow("Subtotal", formatINR(subtotal));
+    if (discountNum > 0) drawRow("Discount", `- ${formatINR(discountNum)}`);
+
+    // Grand total band
+    doc.setFillColor(...NAVY);
+    doc.rect(RIGHT - 60, y - 3.5, 60, 8.5, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10.5);
+    doc.setTextColor(255, 255, 255);
+    doc.text("GRAND TOTAL", RIGHT - 58, y + 2);
+    doc.text(formatINR(total), cAmt - 1, y + 2, { align: "right" });
+    y += 9;
+
+    doc.setTextColor(...INK);
+    drawRow("Paid", formatINR(paidNum));
+    if (due > 0) drawRow("Balance Due", formatINR(due), { bold: true, color: AMBER });
+
+    // ===== Payment status pill =====
+    const status = due <= 0.01 ? "PAID" : paidNum === 0 ? "UNPAID" : "PARTIAL";
+    const pillColor: [number, number, number] =
+      status === "PAID" ? [16, 120, 75] : status === "UNPAID" ? [180, 50, 50] : AMBER;
+    y += 2;
+    doc.setFillColor(...pillColor);
+    doc.roundedRect(M, y, 28, 6.5, 1.5, 1.5, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.text(status, M + 14, y + 4.4, { align: "center" });
+
+    // ===== Footer =====
+    doc.setDrawColor(...LINE);
+    doc.line(M, 196, RIGHT, 196);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(...NAVY);
+    doc.text("Thank you for your business!", W / 2, 201, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(...MUTED);
+    doc.text("Goods once sold will not be taken back. Please retain this bill for warranty.", W / 2, 205, { align: "center" });
+
     return doc;
   }
 
