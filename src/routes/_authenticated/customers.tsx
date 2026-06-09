@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Phone, Car } from "lucide-react";
+import { Plus, Search, Phone, Car, MessageCircle, IndianRupee, CalendarDays, Send } from "lucide-react";
 import { toast } from "sonner";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { sb, type Customer } from "@/lib/db";
+import { sb, type Customer, type Invoice } from "@/lib/db";
 import { useAuth } from "@/lib/auth-context";
+import { formatINR, formatDate, buildWhatsAppUrl, buildDueReminderMessage } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +36,25 @@ function CustomersPage() {
       const { data, error } = await sb.from("customers").select("*").order("name");
       if (error) throw error;
       return data as Customer[];
+    },
+  });
+
+  const { data: dueMap } = useQuery({
+    queryKey: ["customer-dues", profile?.shop_id],
+    enabled: !!profile?.shop_id,
+    queryFn: async () => {
+      const { data, error } = await sb
+        .from("invoices")
+        .select("customer_id,total,due,payment_status")
+        .in("payment_status", ["unpaid", "partial"]);
+      if (error) throw error;
+      const map = new Map<string, number>();
+      for (const row of data ?? []) {
+        if (!row.customer_id) continue;
+        const prev = map.get(row.customer_id) ?? 0;
+        map.set(row.customer_id, prev + Number(row.due ?? 0));
+      }
+      return map;
     },
   });
 
@@ -84,36 +104,47 @@ function CustomersPage() {
             {search ? "No customers match" : "No customers yet"}
           </div>
         )}
-        {filtered.map((c) => (
-          <button
-            key={c.id}
-            onClick={() => { setEditing(c); setOpen(true); }}
-            className="w-full text-left rounded-2xl bg-card shadow-card p-4"
-          >
-            <div className="flex items-center justify-between">
-              <div className="font-semibold text-sm">{c.name}</div>
-            </div>
-            <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-              {c.mobile && (
-                <span className="inline-flex items-center gap-1">
-                  <Phone size={12} /> {c.mobile}
-                </span>
-              )}
-              {c.vehicle_number && (
-                <span className="inline-flex items-center gap-1">
-                  <Car size={12} /> {c.vehicle_number}
-                </span>
-              )}
-            </div>
-          </button>
-        ))}
+        {filtered.map((c) => {
+          const due = dueMap?.get(c.id) ?? 0;
+          return (
+            <button
+              key={c.id}
+              onClick={() => { setEditing(c); setOpen(true); }}
+              className="w-full text-left rounded-2xl bg-card shadow-card p-4"
+            >
+              <div className="flex items-center justify-between">
+                <div className="font-semibold text-sm">{c.name}</div>
+                {due > 0 && (
+                  <span className="text-[11px] font-bold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">
+                    Due {formatINR(due)}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                {c.mobile && (
+                  <span className="inline-flex items-center gap-1">
+                    <Phone size={12} /> {c.mobile}
+                  </span>
+                )}
+                {c.vehicle_number && (
+                  <span className="inline-flex items-center gap-1">
+                    <Car size={12} /> {c.vehicle_number}
+                  </span>
+                )}
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       <CustomerSheet
         open={open}
         onOpenChange={setOpen}
         initial={editing}
-        onSaved={() => qc.invalidateQueries({ queryKey: ["customers"] })}
+        onSaved={() => {
+          qc.invalidateQueries({ queryKey: ["customers"] });
+          qc.invalidateQueries({ queryKey: ["customer-dues"] });
+        }}
       />
     </div>
   );
@@ -138,6 +169,21 @@ function CustomerSheet({
     vehicle_number: "",
     address: "",
     notes: "",
+  });
+
+  const { data: dueInvoices } = useQuery({
+    queryKey: ["customer-invoices-due", initial?.id],
+    enabled: !!initial?.id && open,
+    queryFn: async () => {
+      const { data, error } = await sb
+        .from("invoices")
+        .select("id,invoice_number,total,due,created_at")
+        .eq("customer_id", initial!.id)
+        .in("payment_status", ["unpaid", "partial"])
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as Pick<Invoice, "id" | "invoice_number" | "total" | "due" | "created_at">[];
+    },
   });
 
   if (open && initial && form._id !== initial.id) {
@@ -195,12 +241,60 @@ function CustomerSheet({
     onOpenChange(false);
   }
 
+  function sendReminder() {
+    if (!initial?.mobile || !dueInvoices || dueInvoices.length === 0) return;
+    const msg = buildDueReminderMessage(initial.name, dueInvoices);
+    const url = buildWhatsAppUrl(initial.mobile, msg);
+    if (url) window.open(url, "_blank");
+    else toast.error("Invalid mobile number");
+  }
+
+  const totalDue = (dueInvoices ?? []).reduce((s, i) => s + Number(i.due ?? 0), 0);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="rounded-t-3xl max-h-[92vh] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>{initial ? "Edit customer" : "New customer"}</SheetTitle>
         </SheetHeader>
+
+        {/* Due invoices section */}
+        {initial && totalDue > 0 && (
+          <div className="mt-4 rounded-2xl bg-destructive/5 border border-destructive/20 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-bold text-destructive flex items-center gap-1.5">
+                <IndianRupee size={14} /> Outstanding Dues
+              </div>
+              <span className="text-sm font-bold text-destructive">{formatINR(totalDue)}</span>
+            </div>
+            <div className="space-y-2">
+              {dueInvoices?.map((inv) => (
+                <div
+                  key={inv.id}
+                  className="flex items-center justify-between text-xs"
+                >
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <CalendarDays size={12} />
+                    <span>{inv.invoice_number}</span>
+                    <span>·</span>
+                    <span>{formatDate(inv.created_at)}</span>
+                  </div>
+                  <div className="font-semibold text-destructive">{formatINR(Number(inv.due))}</div>
+                </div>
+              ))}
+            </div>
+            <Button
+              variant="hero"
+              size="sm"
+              className="w-full"
+              onClick={sendReminder}
+              disabled={!initial.mobile}
+            >
+              <MessageCircle size={16} /> Send WhatsApp Reminder
+            </Button>
+          </div>
+        )}
+
         <div className="space-y-3 mt-4">
           <div className="space-y-1.5">
             <Label className="text-xs">Name *</Label>
