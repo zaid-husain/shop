@@ -58,3 +58,22 @@ export function buildWhatsAppUrl(mobile: string | null | undefined, message: str
   const withCountry = digits.length === 10 ? `91${digits}` : digits;
   return `https://wa.me/${withCountry}?text=${encodeURIComponent(message)}`;
 }
+
+export function buildDueReminderMessage(
+  customerName: string,
+  invoices: { invoice_number: string; total: number; due: number; created_at: string }[]
+): string {
+  const totalDue = invoices.reduce((s, i) => s + Number(i.due ?? 0), 0);
+  const lines = invoices.map(
+    (i) => `• ${i.invoice_number} — ${formatINR(Number(i.total))} (Due: ${formatINR(Number(i.due))})`
+  );
+  return (
+    `*Bharat Auto Parts*\n\n` +
+    `Namaste ${customerName},\n` +
+    `Your pending payment reminder:\n\n` +
+    lines.join("\n") +
+    `\n\n*Total Due: ${formatINR(totalDue)}*\n\n` +
+    `Please clear the dues at your earliest convenience.\n` +
+    `Thank you!`
+  );
+}
