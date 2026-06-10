@@ -96,8 +96,36 @@ function Dashboard() {
         showLogout
       />
 
-      {/* KPI cards */}
+      {/* Khata hero cards */}
       <div className="-mt-3 px-4 grid grid-cols-2 gap-3">
+        <Link
+          to="/khata"
+          className="rounded-2xl p-4 shadow-card bg-destructive/10 border border-destructive/20 block"
+        >
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-destructive">
+            <TrendingUp size={14} /> Outstanding
+          </div>
+          <div className="mt-1.5 text-xl font-bold text-destructive tracking-tight">
+            {formatINR(data?.totalOutstanding ?? 0)}
+          </div>
+          <div className="mt-0.5 text-[11px] text-muted-foreground">From customers</div>
+        </Link>
+        <Link
+          to="/khata"
+          className="rounded-2xl p-4 shadow-card bg-emerald-500/10 border border-emerald-500/20 block"
+        >
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+            <IndianRupee size={14} /> Collected this month
+          </div>
+          <div className="mt-1.5 text-xl font-bold text-emerald-700 dark:text-emerald-400 tracking-tight">
+            {formatINR(data?.monthCollection ?? 0)}
+          </div>
+          <div className="mt-0.5 text-[11px] text-muted-foreground">Payments received</div>
+        </Link>
+      </div>
+
+      {/* KPI strip */}
+      <div className="px-4 mt-3 grid grid-cols-2 gap-3">
         <KpiCard
           icon={<IndianRupee size={18} />}
           label="Today's sales"
@@ -115,19 +143,49 @@ function Dashboard() {
           value={String(data?.todayCount ?? 0)}
         />
         <KpiCard
-          icon={<IndianRupee size={18} />}
-          label="This month"
-          value={formatINR(data?.monthSales ?? 0)}
+          icon={<Users size={18} />}
+          label="Customers"
+          value={String(data?.custCount ?? 0)}
         />
       </div>
 
       {/* Quick actions */}
       <div className="px-4 mt-5 grid grid-cols-2 gap-3">
         <QuickAction to="/billing" label="New bill" icon={<ShoppingCart size={20} />} primary />
-        <QuickAction to="/products" label="Add product" icon={<Package size={20} />} />
-        <QuickAction to="/customers" label="Add customer" icon={<Users size={20} />} />
+        <QuickAction to="/khata" label="Khata book" icon={<BookOpen size={20} />} />
+        <QuickAction to="/products" label="Stock" icon={<Package size={20} />} />
         <QuickAction to="/assistant" label="Ask AI" icon={<Sparkles size={20} />} />
       </div>
+
+      {/* Top dues */}
+      {data && data.topDue.length > 0 && (
+        <section className="px-4 mt-6">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">
+              Top pending customers
+            </h2>
+            <Link to="/khata" className="text-xs font-semibold text-primary inline-flex items-center">
+              View all <ChevronRight size={12} />
+            </Link>
+          </div>
+          <div className="rounded-2xl bg-card shadow-card divide-y divide-border overflow-hidden">
+            {data.topDue.map((r) => (
+              <Link
+                key={r.customer!.id}
+                to="/customers/$id"
+                params={{ id: r.customer!.id }}
+                className="flex justify-between items-center px-4 py-3"
+              >
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold truncate">{r.customer!.name}</div>
+                  <div className="text-[11px] text-muted-foreground">{r.customer!.mobile ?? "—"}</div>
+                </div>
+                <div className="text-sm font-bold text-destructive">{formatINR(r.balance)}</div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Low stock */}
       {data && data.lowStock.length > 0 && (
@@ -149,10 +207,10 @@ function Dashboard() {
         </section>
       )}
 
-      {/* Recent bills */}
+      {/* Recent ledger transactions */}
       <section className="px-4 mt-6">
         <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-2">
-          Recent bills
+          Recent transactions
         </h2>
         <div className="rounded-2xl bg-card shadow-card divide-y divide-border overflow-hidden">
           {isLoading && (
@@ -160,29 +218,41 @@ function Dashboard() {
           )}
           {!isLoading && data?.recent.length === 0 && (
             <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-              No bills yet. Create your first bill →
+              No transactions yet. Go to Khata →
             </div>
           )}
-          {data?.recent.map((inv: any) => (
-            <div key={inv.id} className="flex justify-between items-center px-4 py-3">
-              <div className="min-w-0">
-                <div className="text-sm font-semibold truncate">
-                  {inv.customer_name || "Walk-in customer"}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {inv.invoice_number} · {formatDateTime(inv.created_at)}
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-bold">{formatINR(Number(inv.total))}</div>
-                {Number(inv.due) > 0 && (
-                  <div className="text-[11px] font-semibold text-destructive">
-                    Due {formatINR(Number(inv.due))}
+          {data?.recent.map((e: any) => {
+            const isCredit = e.entry_type === "credit";
+            return (
+              <Link
+                key={e.id}
+                to="/customers/$id"
+                params={{ id: e.customer_id }}
+                className="flex justify-between items-center px-4 py-3"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className={`grid place-items-center w-8 h-8 rounded-lg shrink-0 ${
+                    isCredit ? "bg-destructive/10 text-destructive" : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                  }`}>
+                    {isCredit ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                   </div>
-                )}
-              </div>
-            </div>
-          ))}
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold truncate">
+                      {e.customer?.name ?? "Unknown"}
+                    </div>
+                    <div className="text-[11px] text-muted-foreground">
+                      {isCredit ? "Credit" : "Payment"} · {formatDate(e.entry_date)}
+                    </div>
+                  </div>
+                </div>
+                <div className={`text-sm font-bold ${
+                  isCredit ? "text-destructive" : "text-emerald-700 dark:text-emerald-400"
+                }`}>
+                  {isCredit ? "+" : "−"}{formatINR(Number(e.amount))}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
