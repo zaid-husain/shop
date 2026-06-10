@@ -211,6 +211,56 @@ export type Database = {
           },
         ]
       }
+      ledger_entries: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          entry_date: string
+          entry_type: Database["public"]["Enums"]["ledger_entry_type"]
+          id: string
+          note: string | null
+          payment_method: string | null
+          shop_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          entry_date?: string
+          entry_type: Database["public"]["Enums"]["ledger_entry_type"]
+          id?: string
+          note?: string | null
+          payment_method?: string | null
+          shop_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          entry_date?: string
+          entry_type?: Database["public"]["Enums"]["ledger_entry_type"]
+          id?: string
+          note?: string | null
+          payment_method?: string | null
+          shop_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           brand: string | null
@@ -335,6 +385,7 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "staff"
+      ledger_entry_type: "credit" | "payment"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -463,6 +514,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["owner", "staff"],
+      ledger_entry_type: ["credit", "payment"],
     },
   },
 } as const
