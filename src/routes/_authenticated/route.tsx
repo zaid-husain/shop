@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, useNavigate, Link, useLocation } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { LayoutDashboard, ShoppingCart, Package, Users, Sparkles } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, BookOpen, Users, Sparkles } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Logo } from "@/components/Logo";
 
@@ -10,8 +10,8 @@ export const Route = createFileRoute("/_authenticated")({
 
 const NAV = [
   { to: "/dashboard", label: "Home", icon: LayoutDashboard },
+  { to: "/khata", label: "Khata", icon: BookOpen },
   { to: "/billing", label: "Bill", icon: ShoppingCart },
-  { to: "/products", label: "Stock", icon: Package },
   { to: "/customers", label: "Clients", icon: Users },
   { to: "/assistant", label: "AI", icon: Sparkles },
 ] as const;
