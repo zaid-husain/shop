@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ShoppingCart, Package, Users, TrendingUp, IndianRupee, AlertTriangle, Sparkles } from "lucide-react";
+import { ShoppingCart, Package, Users, TrendingUp, IndianRupee, AlertTriangle, Sparkles, BookOpen, ArrowUpRight, ArrowDownRight, ChevronRight } from "lucide-react";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { useAuth } from "@/lib/auth-context";
-import { sb } from "@/lib/db";
-import { formatINR, formatDateTime } from "@/lib/format";
+import { sb, type LedgerEntry, type Customer } from "@/lib/db";
+import { formatINR, formatDate, formatDateTime } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
@@ -21,40 +21,67 @@ function Dashboard() {
     queryFn: async () => {
       const startOfDay = new Date();
       startOfDay.setHours(0, 0, 0, 0);
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
 
-      const [todayInv, monthInv, lowStock, recent, custCount, prodCount] = await Promise.all([
+      const [todayInv, monthInv, lowStock, recent, custCount, prodCount, customers, ledger, monthPayments] = await Promise.all([
         sb.from("invoices").select("total,profit,due,paid").gte("created_at", startOfDay.toISOString()),
-        sb.from("invoices").select("total,profit").gte(
-          "created_at",
-          new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString(),
-        ),
+        sb.from("invoices").select("total,profit").gte("created_at", startOfMonth),
         sb.from("products")
           .select("id,name,stock_quantity,low_stock_threshold")
           .eq("is_active", true)
           .order("stock_quantity", { ascending: true })
           .limit(20),
-        sb.from("invoices")
-          .select("id,invoice_number,customer_name,total,due,created_at")
+        sb.from("ledger_entries")
+          .select("id,customer_id,entry_type,amount,entry_date,note,created_at")
           .order("created_at", { ascending: false })
-          .limit(5),
+          .limit(6),
         sb.from("customers").select("id", { count: "exact", head: true }),
         sb.from("products").select("id", { count: "exact", head: true }).eq("is_active", true),
+        sb.from("customers").select("id,name,mobile"),
+        sb.from("ledger_entries").select("customer_id,entry_type,amount"),
+        sb.from("ledger_entries")
+          .select("amount")
+          .eq("entry_type", "payment")
+          .gte("entry_date", startOfMonth.slice(0, 10)),
       ]);
 
       const sum = (rows: any[] | null, k: string) =>
         (rows ?? []).reduce((a, r) => a + Number(r[k] ?? 0), 0);
+
+      // Compute customer balances
+      const balances = new Map<string, number>();
+      for (const e of (ledger.data ?? []) as Pick<LedgerEntry, "customer_id" | "entry_type" | "amount">[]) {
+        const sign = e.entry_type === "credit" ? 1 : -1;
+        balances.set(e.customer_id, (balances.get(e.customer_id) ?? 0) + sign * Number(e.amount));
+      }
+      let totalOutstanding = 0;
+      for (const v of balances.values()) if (v > 0) totalOutstanding += v;
+
+      const custMap = new Map<string, Customer>();
+      for (const c of ((customers.data ?? []) as Customer[])) custMap.set(c.id, c);
+
+      const topDue = Array.from(balances.entries())
+        .filter(([, v]) => v > 0)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([cid, v]) => ({ customer: custMap.get(cid), balance: v }))
+        .filter((r) => r.customer);
 
       return {
         todaySales: sum(todayInv.data, "total"),
         todayProfit: sum(todayInv.data, "profit"),
         todayCount: todayInv.data?.length ?? 0,
         monthSales: sum(monthInv.data, "total"),
-        monthProfit: sum(monthInv.data, "profit"),
-        totalDue: sum(todayInv.data, "due"),
+        monthCollection: sum(monthPayments.data, "amount"),
+        totalOutstanding,
         lowStock: (lowStock.data ?? []).filter(
           (p: any) => Number(p.stock_quantity) <= Number(p.low_stock_threshold ?? 5),
         ),
-        recent: recent.data ?? [],
+        recent: (recent.data ?? []).map((e: any) => ({
+          ...e,
+          customer: custMap.get(e.customer_id),
+        })),
+        topDue,
         custCount: custCount.count ?? 0,
         prodCount: prodCount.count ?? 0,
       };
