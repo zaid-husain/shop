@@ -53,10 +53,11 @@ Your job:
           });
           return result.toUIMessageStreamResponse({ originalMessages: messages });
         } catch (err: any) {
+          console.error(err);
           const msg = String(err?.message ?? err);
           if (/429/.test(msg)) return new Response("Rate limit. Try again in a moment.", { status: 429 });
           if (/402/.test(msg)) return new Response("AI credits exhausted. Please upgrade.", { status: 402 });
-          return new Response(`AI error: ${msg}`, { status: 500 });
+          return new Response("AI error", { status: 500 });
         }
       },
     },
