@@ -271,7 +271,7 @@ function ProductSheet({
     setBusy(true);
     const { error } = await sb.from("products").update({ is_active: false }).eq("id", initial.id);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { console.error(error); return toast.error("Something went wrong. Please try again."); }
     toast.success("Product removed");
     onSaved();
     onOpenChange(false);
