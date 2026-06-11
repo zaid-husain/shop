@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /billing
+Disallow: /products
+Disallow: /customers
+Disallow: /khata
+Disallow: /reports
+Disallow: /assistant
