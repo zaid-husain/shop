@@ -8,6 +8,12 @@ import { sb, type LedgerEntry, type Customer } from "@/lib/db";
 import { formatINR, formatDate, formatDateTime } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  head: () => ({
+    meta: [
+      { title: "Dashboard — Bharat Auto Parts" },
+      { name: "description", content: "Today's sales, outstanding Khata, low stock alerts, and recent activity for your auto parts shop." },
+    ],
+  }),
   component: Dashboard,
 });
 
