@@ -113,7 +113,7 @@ function CustomerProfilePage() {
         toast.message("Sharing not supported — PDF downloaded instead");
       }
     } catch (e: any) {
-      if (e?.name !== "AbortError") toast.error(e.message ?? String(e));
+      if (e?.name !== "AbortError") { console.error(e); toast.error("Something went wrong. Please try again."); }
     }
   }
 
