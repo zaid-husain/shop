@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
 import { Route as AuthenticatedKhataRouteImport } from './routes/_authenticated/khata'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -39,6 +40,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
   id: '/products',
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/khata': typeof AuthenticatedKhataRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/api/chat': typeof ApiChatRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
 }
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/khata': typeof AuthenticatedKhataRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/api/chat': typeof ApiChatRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
 }
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/khata': typeof AuthenticatedKhataRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
+  '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRoute
 }
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/khata'
     | '/products'
+    | '/reports'
     | '/api/chat'
     | '/customers/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -138,6 +148,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/khata'
     | '/products'
+    | '/reports'
     | '/api/chat'
     | '/customers/$id'
   id:
@@ -151,6 +162,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/khata'
     | '/_authenticated/products'
+    | '/_authenticated/reports'
     | '/api/chat'
     | '/_authenticated/customers/$id'
   fileRoutesById: FileRoutesById
@@ -191,6 +203,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/chat'
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/reports': {
+      id: '/_authenticated/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AuthenticatedReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/products': {
       id: '/_authenticated/products'
@@ -265,6 +284,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedKhataRoute: typeof AuthenticatedKhataRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
+  AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -274,6 +294,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedKhataRoute: AuthenticatedKhataRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
+  AuthenticatedReportsRoute: AuthenticatedReportsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -288,13 +309,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft, Phone, Car, MapPin, MessageCircle, ArrowUpRight, ArrowDownRight,
-  CalendarDays, FileText, Trash2, StickyNote,
+  CalendarDays, FileText, Trash2, StickyNote, Download, Share2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { sb, type Customer, type LedgerEntry, type Invoice } from "@/lib/db";
@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/auth-context";
 import { formatINR, formatDate, formatDateTime, buildWhatsAppUrl } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { EntrySheet } from "./khata";
+import { downloadStatement, statementPdfBlob } from "@/lib/statement";
 
 export const Route = createFileRoute("/_authenticated/customers/$id")({
   component: CustomerProfilePage,
@@ -89,6 +90,33 @@ function CustomerProfilePage() {
     else toast.error("Invalid mobile number");
   }
 
+  function handleDownloadStatement() {
+    if (!data) return;
+    downloadStatement({ customer: c, entries: data.entries });
+    toast.success("Statement downloaded");
+  }
+
+  async function handleShareStatement() {
+    if (!data) return;
+    try {
+      const blob = statementPdfBlob({ customer: c, entries: data.entries });
+      const file = new File([blob], `Statement_${c.name.replace(/\s+/g, "_")}.pdf`, { type: "application/pdf" });
+      const nav: any = navigator;
+      if (nav.canShare && nav.canShare({ files: [file] })) {
+        await nav.share({
+          files: [file],
+          title: `Statement — ${c.name}`,
+          text: `Bharat Auto Parts statement for ${c.name}. Outstanding: ${formatINR(Math.max(balance, 0))}`,
+        });
+      } else {
+        handleDownloadStatement();
+        toast.message("Sharing not supported — PDF downloaded instead");
+      }
+    } catch (e: any) {
+      if (e?.name !== "AbortError") toast.error(e.message ?? String(e));
+    }
+  }
+
   return (
     <div>
       <div className="gradient-brand text-primary-foreground px-4 pt-4 pb-6 rounded-b-3xl shadow-card">
@@ -159,6 +187,15 @@ function CustomerProfilePage() {
           onClick={() => { setEntryType("payment"); setEntryOpen(true); }}
         >
           <ArrowDownRight size={16} /> Payment
+        </Button>
+      </div>
+
+      <div className="px-4 mt-3 grid grid-cols-2 gap-3">
+        <Button variant="outline" className="h-11" onClick={handleDownloadStatement}>
+          <Download size={15} /> Download Statement
+        </Button>
+        <Button variant="outline" className="h-11" onClick={handleShareStatement}>
+          <Share2 size={15} /> Share PDF
         </Button>
       </div>
 

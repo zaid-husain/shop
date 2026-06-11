@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, IndianRupee, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, ChevronRight } from "lucide-react";
+import { Search, IndianRupee, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, ChevronRight, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { sb, type Customer, type LedgerEntry } from "@/lib/db";
@@ -124,6 +124,14 @@ function KhataPage() {
       <ScreenHeader
         title="Khata Book"
         subtitle={`${data?.rows.length ?? 0} customers`}
+        right={
+          <Link
+            to="/reports"
+            className="inline-flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-xs font-semibold px-3 py-1.5 rounded-full"
+          >
+            <BarChart3 size={13} /> Reports
+          </Link>
+        }
       />
 
       <div className="px-4 -mt-3 grid grid-cols-2 gap-3">
