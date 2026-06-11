@@ -434,7 +434,7 @@ function BillingPage() {
                   <div className="text-xs text-muted-foreground">{customer.mobile}</div>
                 )}
               </div>
-              <Button variant="ghost" size="icon-sm" onClick={() => setCustomer(null)}>
+              <Button variant="ghost" size="icon-sm" aria-label="Remove customer" onClick={() => setCustomer(null)}>
                 <X size={16} />
               </Button>
             </div>
