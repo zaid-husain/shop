@@ -79,19 +79,47 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Bharat Auto Parts — Shop Manager" },
+      {
+        name: "description",
+        content:
+          "Digital ledger, billing, inventory, and customer management for Indian auto parts shops. Track Khata, send reminders, and grow your business.",
+      },
+      { name: "author", content: "Bharat Auto Parts" },
+      { property: "og:site_name", content: "Bharat Auto Parts" },
+      { property: "og:title", content: "Bharat Auto Parts — Shop Manager" },
+      {
+        property: "og:description",
+        content:
+          "Digital ledger, billing, and inventory for auto parts shops. Manage Khata, customers, and payments from your phone.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Bharat Auto Parts — Shop Manager" },
+      {
+        name: "twitter:description",
+        content:
+          "Digital ledger, billing, and inventory for auto parts shops. Manage Khata, customers, and payments from your phone.",
+      },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "Bharat Auto Parts",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
+          description:
+            "Digital ledger, billing, inventory, and customer management for Indian auto parts shops.",
+        }),
       },
     ],
   }),
