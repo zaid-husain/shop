@@ -26,6 +26,10 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/products")({
+  head: () => ({ meta: [
+    { title: "Inventory — Bharat Auto Parts" },
+    { name: "description", content: "Manage your spare parts stock, prices, brands, and low-stock alerts in one place." },
+  ] }),
   component: ProductsPage,
 });
 
