@@ -14,6 +14,10 @@ import { EntrySheet } from "./khata";
 import { downloadStatement, statementPdfBlob } from "@/lib/statement";
 
 export const Route = createFileRoute("/_authenticated/customers/$id")({
+  head: () => ({ meta: [
+    { title: "Customer — Bharat Auto Parts" },
+    { name: "description", content: "Customer profile with running Khata balance, transaction history, and reminder actions." },
+  ] }),
   component: CustomerProfilePage,
 });
 
