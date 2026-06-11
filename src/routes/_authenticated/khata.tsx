@@ -124,7 +124,7 @@ function KhataPage() {
       <ScreenHeader
         title="Khata Book"
         subtitle={`${data?.rows.length ?? 0} customers`}
-        action={
+        right={
           <Link
             to="/reports"
             className="inline-flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-xs font-semibold px-3 py-1.5 rounded-full"
