@@ -11,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/assistant")({
+  head: () => ({ meta: [
+    { title: "AI Assistant — Bharat Auto Parts" },
+    { name: "description", content: "Ask the AI shop assistant questions about billing, inventory, and managing your auto parts business." },
+  ] }),
   component: AssistantPage,
 });
 
