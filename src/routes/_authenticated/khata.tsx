@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, IndianRupee, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, ChevronRight } from "lucide-react";
+import { Search, IndianRupee, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, ChevronRight, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { sb, type Customer, type LedgerEntry } from "@/lib/db";
