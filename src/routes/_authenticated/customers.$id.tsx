@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft, Phone, Car, MapPin, MessageCircle, ArrowUpRight, ArrowDownRight,
-  CalendarDays, FileText, Trash2, StickyNote,
+  CalendarDays, FileText, Trash2, StickyNote, Download, Share2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { sb, type Customer, type LedgerEntry, type Invoice } from "@/lib/db";
