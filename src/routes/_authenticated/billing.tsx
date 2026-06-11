@@ -499,6 +499,7 @@ function BillingPage() {
                 <Button
                   size="icon-sm"
                   variant="ghost"
+                  aria-label="Remove item"
                   className="text-destructive"
                   onClick={() => removeItem(idx)}
                 >
