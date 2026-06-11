@@ -16,6 +16,10 @@ import {
 } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/reports")({
+  head: () => ({ meta: [
+    { title: "Reports — Bharat Auto Parts" },
+    { name: "description", content: "Outstanding dues, collections, and top-customer reports for your auto parts shop." },
+  ] }),
   component: ReportsPage,
 });
 
