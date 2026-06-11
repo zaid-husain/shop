@@ -20,6 +20,10 @@ import {
 } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/_authenticated/billing")({
+  head: () => ({ meta: [
+    { title: "Billing — Bharat Auto Parts" },
+    { name: "description", content: "Create invoices, add parts, apply discounts, and share bills with customers over WhatsApp." },
+  ] }),
   component: BillingPage,
 });
 
