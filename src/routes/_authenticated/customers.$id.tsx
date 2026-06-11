@@ -90,6 +90,33 @@ function CustomerProfilePage() {
     else toast.error("Invalid mobile number");
   }
 
+  function handleDownloadStatement() {
+    if (!data) return;
+    downloadStatement({ customer: c, entries: data.entries });
+    toast.success("Statement downloaded");
+  }
+
+  async function handleShareStatement() {
+    if (!data) return;
+    try {
+      const blob = statementPdfBlob({ customer: c, entries: data.entries });
+      const file = new File([blob], `Statement_${c.name.replace(/\s+/g, "_")}.pdf`, { type: "application/pdf" });
+      const nav: any = navigator;
+      if (nav.canShare && nav.canShare({ files: [file] })) {
+        await nav.share({
+          files: [file],
+          title: `Statement — ${c.name}`,
+          text: `Bharat Auto Parts statement for ${c.name}. Outstanding: ${formatINR(Math.max(balance, 0))}`,
+        });
+      } else {
+        handleDownloadStatement();
+        toast.message("Sharing not supported — PDF downloaded instead");
+      }
+    } catch (e: any) {
+      if (e?.name !== "AbortError") toast.error(e.message ?? String(e));
+    }
+  }
+
   return (
     <div>
       <div className="gradient-brand text-primary-foreground px-4 pt-4 pb-6 rounded-b-3xl shadow-card">
