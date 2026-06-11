@@ -13,8 +13,12 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Sign in — Bharat Auto Parts" },
-      { name: "description", content: "Sign in to your auto parts shop with your mobile number and PIN." },
+      { name: "description", content: "Sign in to your auto parts shop with your mobile number and PIN to manage billing, stock, and customer Khata." },
+      { property: "og:title", content: "Sign in — Bharat Auto Parts" },
+      { property: "og:description", content: "Sign in to manage billing, stock, and customer Khata for your auto parts shop." },
+      { property: "og:url", content: "/auth" },
     ],
+    links: [{ rel: "canonical", href: "/auth" }],
   }),
   component: AuthPage,
 });
