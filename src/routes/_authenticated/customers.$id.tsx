@@ -190,6 +190,15 @@ function CustomerProfilePage() {
         </Button>
       </div>
 
+      <div className="px-4 mt-3 grid grid-cols-2 gap-3">
+        <Button variant="outline" className="h-11" onClick={handleDownloadStatement}>
+          <Download size={15} /> Download Statement
+        </Button>
+        <Button variant="outline" className="h-11" onClick={handleShareStatement}>
+          <Share2 size={15} /> Share PDF
+        </Button>
+      </div>
+
       <div className="px-4 mt-6">
         <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-2">
           Transactions
