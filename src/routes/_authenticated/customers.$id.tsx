@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/auth-context";
 import { formatINR, formatDate, formatDateTime, buildWhatsAppUrl } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { EntrySheet } from "./khata";
+import { downloadStatement, statementPdfBlob } from "@/lib/statement";
 
 export const Route = createFileRoute("/_authenticated/customers/$id")({
   component: CustomerProfilePage,
