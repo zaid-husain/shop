@@ -19,6 +19,10 @@ import {
 } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/_authenticated/customers")({
+  head: () => ({ meta: [
+    { title: "Customers — Bharat Auto Parts" },
+    { name: "description", content: "View and manage your shop's customers, vehicles, and contact details." },
+  ] }),
   component: CustomersPage,
 });
 

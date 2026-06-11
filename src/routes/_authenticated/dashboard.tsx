@@ -8,6 +8,12 @@ import { sb, type LedgerEntry, type Customer } from "@/lib/db";
 import { formatINR, formatDate, formatDateTime } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  head: () => ({
+    meta: [
+      { title: "Dashboard — Bharat Auto Parts" },
+      { name: "description", content: "Today's sales, outstanding Khata, low stock alerts, and recent activity for your auto parts shop." },
+    ],
+  }),
   component: Dashboard,
 });
 
@@ -91,8 +97,8 @@ function Dashboard() {
   return (
     <div>
       <ScreenHeader
-        title={profile?.full_name ? `Hi, ${profile.full_name.split(" ")[0]}` : "Bharat Auto Parts"}
-        subtitle={new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
+        title="Dashboard"
+        subtitle={profile?.full_name ? `Hi, ${profile.full_name.split(" ")[0]} · ${new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}` : new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
         showLogout
       />
 

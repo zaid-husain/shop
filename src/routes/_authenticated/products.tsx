@@ -26,6 +26,10 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/products")({
+  head: () => ({ meta: [
+    { title: "Inventory — Bharat Auto Parts" },
+    { name: "description", content: "Manage your spare parts stock, prices, brands, and low-stock alerts in one place." },
+  ] }),
   component: ProductsPage,
 });
 
@@ -315,7 +319,7 @@ function ProductSheet({
               value={form.category}
               onValueChange={(v) => setForm({ ...form, category: v })}
             >
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger aria-label="Select category"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {PRODUCT_CATEGORIES.map((c) => (
                   <SelectItem key={c} value={c}>{c}</SelectItem>

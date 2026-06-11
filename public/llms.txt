@@ -1,0 +1,7 @@
+# Bharat Auto Parts
+
+> Mobile-first shop management app for Indian auto parts retailers — digital ledger (Khata), billing, inventory, and customer reminders.
+
+## Pages
+
+- [Sign in](/auth): Sign in or create your shop account with mobile number and PIN.

@@ -13,8 +13,12 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Sign in — Bharat Auto Parts" },
-      { name: "description", content: "Sign in to your auto parts shop with your mobile number and PIN." },
+      { name: "description", content: "Sign in to your auto parts shop with your mobile number and PIN to manage billing, stock, and customer Khata." },
+      { property: "og:title", content: "Sign in — Bharat Auto Parts" },
+      { property: "og:description", content: "Sign in to manage billing, stock, and customer Khata for your auto parts shop." },
+      { property: "og:url", content: "/auth" },
     ],
+    links: [{ rel: "canonical", href: "/auth" }],
   }),
   component: AuthPage,
 });
@@ -104,7 +108,7 @@ function AuthPage() {
           className="flex flex-col items-center gap-3"
         >
           <Logo size={72} />
-          <h1 className="text-2xl font-bold tracking-tight">Bharat Auto Parts</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Sign in — Bharat Auto Parts</h1>
           <p className="text-sm text-primary-foreground/80">Shop management, made simple</p>
         </motion.div>
       </div>

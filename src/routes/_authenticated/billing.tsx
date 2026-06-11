@@ -20,6 +20,10 @@ import {
 } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/_authenticated/billing")({
+  head: () => ({ meta: [
+    { title: "Billing — Bharat Auto Parts" },
+    { name: "description", content: "Create invoices, add parts, apply discounts, and share bills with customers over WhatsApp." },
+  ] }),
   component: BillingPage,
 });
 
@@ -434,7 +438,7 @@ function BillingPage() {
                   <div className="text-xs text-muted-foreground">{customer.mobile}</div>
                 )}
               </div>
-              <Button variant="ghost" size="icon-sm" onClick={() => setCustomer(null)}>
+              <Button variant="ghost" size="icon-sm" aria-label="Remove customer" onClick={() => setCustomer(null)}>
                 <X size={16} />
               </Button>
             </div>
@@ -489,16 +493,17 @@ function BillingPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button size="icon-sm" variant="outline" onClick={() => updateQty(idx, -1)}>
+                <Button size="icon-sm" variant="outline" aria-label="Decrease quantity" onClick={() => updateQty(idx, -1)}>
                   <Minus size={14} />
                 </Button>
                 <span className="w-6 text-center font-bold">{i.quantity}</span>
-                <Button size="icon-sm" variant="outline" onClick={() => updateQty(idx, 1)}>
+                <Button size="icon-sm" variant="outline" aria-label="Increase quantity" onClick={() => updateQty(idx, 1)}>
                   <Plus size={14} />
                 </Button>
                 <Button
                   size="icon-sm"
                   variant="ghost"
+                  aria-label="Remove item"
                   className="text-destructive"
                   onClick={() => removeItem(idx)}
                 >
