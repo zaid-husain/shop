@@ -26,6 +26,10 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/khata")({
+  head: () => ({ meta: [
+    { title: "Khata — Bharat Auto Parts" },
+    { name: "description", content: "Digital ledger of credit and payments for every customer. Send reminders and track dues." },
+  ] }),
   component: KhataPage,
 });
 
