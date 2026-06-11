@@ -108,7 +108,7 @@ function AuthPage() {
           className="flex flex-col items-center gap-3"
         >
           <Logo size={72} />
-          <h1 className="text-2xl font-bold tracking-tight">Bharat Auto Parts</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Sign in — Bharat Auto Parts</h1>
           <p className="text-sm text-primary-foreground/80">Shop management, made simple</p>
         </motion.div>
       </div>
