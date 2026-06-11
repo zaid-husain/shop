@@ -489,11 +489,11 @@ function BillingPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button size="icon-sm" variant="outline" onClick={() => updateQty(idx, -1)}>
+                <Button size="icon-sm" variant="outline" aria-label="Decrease quantity" onClick={() => updateQty(idx, -1)}>
                   <Minus size={14} />
                 </Button>
                 <span className="w-6 text-center font-bold">{i.quantity}</span>
-                <Button size="icon-sm" variant="outline" onClick={() => updateQty(idx, 1)}>
+                <Button size="icon-sm" variant="outline" aria-label="Increase quantity" onClick={() => updateQty(idx, 1)}>
                   <Plus size={14} />
                 </Button>
                 <Button
