@@ -237,7 +237,7 @@ function CustomerSheet({
     setBusy(true);
     const { error } = await sb.from("customers").delete().eq("id", initial.id);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { console.error(error); return toast.error("Something went wrong. Please try again."); }
     toast.success("Deleted");
     onSaved();
     onOpenChange(false);
