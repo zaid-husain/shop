@@ -97,8 +97,8 @@ function Dashboard() {
   return (
     <div>
       <ScreenHeader
-        title={profile?.full_name ? `Hi, ${profile.full_name.split(" ")[0]}` : "Bharat Auto Parts"}
-        subtitle={new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
+        title="Dashboard"
+        subtitle={profile?.full_name ? `Hi, ${profile.full_name.split(" ")[0]} · ${new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}` : new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
         showLogout
       />
 
