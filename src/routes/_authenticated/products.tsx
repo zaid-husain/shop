@@ -315,7 +315,7 @@ function ProductSheet({
               value={form.category}
               onValueChange={(v) => setForm({ ...form, category: v })}
             >
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger aria-label="Select category"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {PRODUCT_CATEGORIES.map((c) => (
                   <SelectItem key={c} value={c}>{c}</SelectItem>
