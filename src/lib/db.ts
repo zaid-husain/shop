@@ -9,7 +9,6 @@ export type Profile = {
   shop_id: string;
   full_name: string;
   phone: string;
-  pin_hash: string | null;
   created_at: string;
   updated_at: string;
 };

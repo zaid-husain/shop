@@ -223,8 +223,10 @@ function CustomerSheet({
       onSaved();
       onOpenChange(false);
     } catch (e: any) {
-      toast.error(e.message ?? String(e));
+      console.error(e);
+      toast.error("Something went wrong. Please try again.");
     } finally {
+
       setBusy(false);
     }
   }
@@ -235,7 +237,7 @@ function CustomerSheet({
     setBusy(true);
     const { error } = await sb.from("customers").delete().eq("id", initial.id);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { console.error(error); return toast.error("Something went wrong. Please try again."); }
     toast.success("Deleted");
     onSaved();
     onOpenChange(false);

@@ -163,7 +163,8 @@ function BillingPage() {
       toast.success(`Bill ${invNo} saved`);
       return inv as any;
     } catch (e: any) {
-      toast.error(e.message ?? String(e));
+      console.error(e);
+      toast.error("Something went wrong. Please try again.");
       return null;
     } finally {
       setSaving(false);

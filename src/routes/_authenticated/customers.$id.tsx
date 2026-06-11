@@ -72,7 +72,7 @@ function CustomerProfilePage() {
   async function deleteEntry(entryId: string) {
     if (!confirm("Delete this entry?")) return;
     const { error } = await sb.from("ledger_entries").delete().eq("id", entryId);
-    if (error) return toast.error(error.message);
+    if (error) { console.error(error); return toast.error("Something went wrong. Please try again."); }
     toast.success("Entry deleted");
     qc.invalidateQueries({ queryKey: ["customer-ledger"] });
     qc.invalidateQueries({ queryKey: ["khata"] });
@@ -113,7 +113,7 @@ function CustomerProfilePage() {
         toast.message("Sharing not supported — PDF downloaded instead");
       }
     } catch (e: any) {
-      if (e?.name !== "AbortError") toast.error(e.message ?? String(e));
+      if (e?.name !== "AbortError") { console.error(e); toast.error("Something went wrong. Please try again."); }
     }
   }
 

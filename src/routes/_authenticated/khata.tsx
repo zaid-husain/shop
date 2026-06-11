@@ -291,7 +291,8 @@ export function EntrySheet({
       onSaved();
       onOpenChange(false);
     } catch (e: any) {
-      toast.error(e.message ?? String(e));
+      console.error(e);
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setBusy(false);
     }

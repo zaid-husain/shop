@@ -83,11 +83,12 @@ function AuthPage() {
         toast.success("Welcome back");
       }
     } catch (err: any) {
+      console.error(err);
       const msg = String(err?.message ?? err);
       if (/invalid login/i.test(msg)) toast.error("Wrong mobile number or PIN");
       else if (/already registered|already exists/i.test(msg))
         toast.error("This mobile is already registered. Please sign in.");
-      else toast.error(msg);
+      else toast.error("Something went wrong. Please try again.");
     } finally {
       setBusy(false);
     }
