@@ -124,6 +124,14 @@ function KhataPage() {
       <ScreenHeader
         title="Khata Book"
         subtitle={`${data?.rows.length ?? 0} customers`}
+        action={
+          <Link
+            to="/reports"
+            className="inline-flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-xs font-semibold px-3 py-1.5 rounded-full"
+          >
+            <BarChart3 size={13} /> Reports
+          </Link>
+        }
       />
 
       <div className="px-4 -mt-3 grid grid-cols-2 gap-3">
