@@ -158,9 +158,9 @@ function Dashboard() {
       {/* Quick actions */}
       <div className="px-4 mt-5 grid grid-cols-2 gap-3">
         <QuickAction to="/billing" label="New bill" icon={<ShoppingCart size={20} />} primary />
+        <QuickAction to="/purchases" label="Stock in" icon={<Truck size={20} />} />
         <QuickAction to="/khata" label="Khata book" icon={<BookOpen size={20} />} />
         <QuickAction to="/products" label="Stock" icon={<Package size={20} />} />
-        <QuickAction to="/assistant" label="Ask AI" icon={<Sparkles size={20} />} />
       </div>
 
       {/* Top dues */}
