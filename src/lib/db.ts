@@ -102,3 +102,48 @@ export const PRODUCT_CATEGORIES = [
   "Oils",
   "Other",
 ] as const;
+
+export const PAYMENT_METHODS = ["cash", "upi", "card", "bank", "cheque", "credit"] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
+export type Supplier = {
+  id: string;
+  shop_id: string;
+  name: string;
+  mobile: string | null;
+  address: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Purchase = {
+  id: string;
+  shop_id: string;
+  supplier_id: string | null;
+  supplier_name: string | null;
+  bill_number: string | null;
+  bill_date: string;
+  subtotal: number;
+  discount: number;
+  total: number;
+  paid: number;
+  due: number;
+  payment_method: string | null;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PurchaseItem = {
+  id: string;
+  purchase_id: string;
+  shop_id: string;
+  product_id: string | null;
+  product_name: string;
+  quantity: number;
+  unit_cost: number;
+  line_total: number;
+  created_at: string;
+};
