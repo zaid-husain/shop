@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ShoppingCart, Package, Users, TrendingUp, IndianRupee, AlertTriangle, Sparkles, BookOpen, ArrowUpRight, ArrowDownRight, ChevronRight, Truck } from "lucide-react";
+import { ShoppingCart, Package, Users, TrendingUp, IndianRupee, AlertTriangle, BookOpen, ArrowUpRight, ArrowDownRight, ChevronRight, Truck } from "lucide-react";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { useAuth } from "@/lib/auth-context";
 import { sb, type LedgerEntry, type Customer } from "@/lib/db";
