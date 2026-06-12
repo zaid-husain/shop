@@ -348,6 +348,155 @@ export type Database = {
         }
         Relationships: []
       }
+      purchase_items: {
+        Row: {
+          created_at: string
+          id: string
+          line_total: number
+          product_id: string | null
+          product_name: string
+          purchase_id: string
+          quantity: number
+          shop_id: string
+          unit_cost: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          line_total?: number
+          product_id?: string | null
+          product_name: string
+          purchase_id: string
+          quantity: number
+          shop_id: string
+          unit_cost?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          line_total?: number
+          product_id?: string | null
+          product_name?: string
+          purchase_id?: string
+          quantity?: number
+          shop_id?: string
+          unit_cost?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_items_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchases: {
+        Row: {
+          bill_date: string
+          bill_number: string | null
+          created_at: string
+          created_by: string | null
+          discount: number
+          due: number
+          id: string
+          notes: string | null
+          paid: number
+          payment_method: string | null
+          shop_id: string
+          subtotal: number
+          supplier_id: string | null
+          supplier_name: string | null
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          bill_date?: string
+          bill_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount?: number
+          due?: number
+          id?: string
+          notes?: string | null
+          paid?: number
+          payment_method?: string | null
+          shop_id: string
+          subtotal?: number
+          supplier_id?: string | null
+          supplier_name?: string | null
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          bill_date?: string
+          bill_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount?: number
+          due?: number
+          id?: string
+          notes?: string | null
+          paid?: number
+          payment_method?: string | null
+          shop_id?: string
+          subtotal?: number
+          supplier_id?: string | null
+          supplier_name?: string | null
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suppliers: {
+        Row: {
+          address: string | null
+          created_at: string
+          id: string
+          mobile: string | null
+          name: string
+          notes: string | null
+          shop_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          mobile?: string | null
+          name: string
+          notes?: string | null
+          shop_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          mobile?: string | null
+          name?: string
+          notes?: string | null
+          shop_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ShoppingCart, Package, Users, TrendingUp, IndianRupee, AlertTriangle, Sparkles, BookOpen, ArrowUpRight, ArrowDownRight, ChevronRight } from "lucide-react";
+import { ShoppingCart, Package, Users, TrendingUp, IndianRupee, AlertTriangle, BookOpen, ArrowUpRight, ArrowDownRight, ChevronRight, Truck } from "lucide-react";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { useAuth } from "@/lib/auth-context";
 import { sb, type LedgerEntry, type Customer } from "@/lib/db";
@@ -158,9 +158,9 @@ function Dashboard() {
       {/* Quick actions */}
       <div className="px-4 mt-5 grid grid-cols-2 gap-3">
         <QuickAction to="/billing" label="New bill" icon={<ShoppingCart size={20} />} primary />
+        <QuickAction to="/purchases" label="Stock in" icon={<Truck size={20} />} />
         <QuickAction to="/khata" label="Khata book" icon={<BookOpen size={20} />} />
         <QuickAction to="/products" label="Stock" icon={<Package size={20} />} />
-        <QuickAction to="/assistant" label="Ask AI" icon={<Sparkles size={20} />} />
       </div>
 
       {/* Top dues */}
