@@ -35,6 +35,26 @@ function ReportsPage() {
   const { profile } = useAuth();
   const [range, setRange] = useState<"30" | "90" | "365">("90");
 
+  const { data: purchaseStats } = useQuery({
+    queryKey: ["reports-purchases", profile?.shop_id],
+    enabled: !!profile?.shop_id,
+    queryFn: async () => {
+      const start = new Date();
+      start.setDate(1);
+      start.setHours(0, 0, 0, 0);
+      const { data, error } = await sb
+        .from("purchases")
+        .select("total, due, bill_date")
+        .gte("bill_date", start.toISOString().slice(0, 10));
+      if (error) throw error;
+      const rows = (data ?? []) as { total: number; due: number }[];
+      const total = rows.reduce((s, r) => s + Number(r.total ?? 0), 0);
+      const due = rows.reduce((s, r) => s + Number(r.due ?? 0), 0);
+      return { total, due, count: rows.length };
+    },
+  });
+
+
   const { data, isLoading } = useQuery({
     queryKey: ["reports", profile?.shop_id, range],
     enabled: !!profile?.shop_id,
