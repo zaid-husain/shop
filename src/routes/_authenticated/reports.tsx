@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowLeft, Download, TrendingUp, TrendingDown, IndianRupee, Users, ChevronRight, MessageCircle,
+  ArrowLeft, Download, TrendingUp, TrendingDown, IndianRupee, Users, ChevronRight, MessageCircle, Truck,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid,
