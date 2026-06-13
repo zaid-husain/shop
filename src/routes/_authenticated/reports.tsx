@@ -202,8 +202,26 @@ function ReportsPage() {
             </div>
             <div className="text-[10px] opacity-80">paid in advance</div>
           </div>
+          <Link
+            to="/purchases"
+            className="bg-white/10 backdrop-blur rounded-2xl p-3 col-span-2 flex items-center justify-between hover:bg-white/15 transition"
+          >
+            <div>
+              <div className="text-[10px] uppercase opacity-80 font-semibold inline-flex items-center gap-1">
+                <Truck size={11} /> Purchases this month
+              </div>
+              <div className="mt-1 text-lg font-extrabold tracking-tight">
+                {formatINR(purchaseStats?.total ?? 0)}
+              </div>
+              <div className="text-[10px] opacity-80">
+                {purchaseStats?.count ?? 0} bills · {formatINR(purchaseStats?.due ?? 0)} due
+              </div>
+            </div>
+            <ChevronRight size={16} className="opacity-80" />
+          </Link>
         </div>
       </div>
+
 
       <div className="px-4 mt-4">
         <Tabs defaultValue="outstanding">
