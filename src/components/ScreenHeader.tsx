@@ -44,8 +44,8 @@ export function ScreenHeader({
         <div className="flex items-center gap-2">
           {right}
           {showLogout && (
-            <AlertDialog open={open} onOpenChange={setOpen}>
-              <AlertDialogTrigger asChild>
+            <ClientOnly
+              fallback={
                 <Button
                   variant="ghost"
                   size="icon-sm"
@@ -54,22 +54,35 @@ export function ScreenHeader({
                 >
                   <LogOut size={18} />
                 </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    You will be signed out of your account.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => signOut()}>
-                    Sign out
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+              }
+            >
+              <AlertDialog open={open} onOpenChange={setOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="text-primary-foreground hover:bg-white/10"
+                    aria-label="Sign out"
+                  >
+                    <LogOut size={18} />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      You will be signed out of your account.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => signOut()}>
+                      Sign out
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </ClientOnly>
           )}
         </div>
       </div>
