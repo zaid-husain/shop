@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowLeft, Download, TrendingUp, TrendingDown, IndianRupee, Users, ChevronRight, MessageCircle,
+  ArrowLeft, Download, TrendingUp, TrendingDown, IndianRupee, Users, ChevronRight, MessageCircle, Truck,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid,
@@ -34,6 +34,26 @@ function ReportsPage() {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const [range, setRange] = useState<"30" | "90" | "365">("90");
+
+  const { data: purchaseStats } = useQuery({
+    queryKey: ["reports-purchases", profile?.shop_id],
+    enabled: !!profile?.shop_id,
+    queryFn: async () => {
+      const start = new Date();
+      start.setDate(1);
+      start.setHours(0, 0, 0, 0);
+      const { data, error } = await sb
+        .from("purchases")
+        .select("total, due, bill_date")
+        .gte("bill_date", start.toISOString().slice(0, 10));
+      if (error) throw error;
+      const rows = (data ?? []) as { total: number; due: number }[];
+      const total = rows.reduce((s, r) => s + Number(r.total ?? 0), 0);
+      const due = rows.reduce((s, r) => s + Number(r.due ?? 0), 0);
+      return { total, due, count: rows.length };
+    },
+  });
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["reports", profile?.shop_id, range],
@@ -182,8 +202,26 @@ function ReportsPage() {
             </div>
             <div className="text-[10px] opacity-80">paid in advance</div>
           </div>
+          <Link
+            to="/purchases"
+            className="bg-white/10 backdrop-blur rounded-2xl p-3 col-span-2 flex items-center justify-between hover:bg-white/15 transition"
+          >
+            <div>
+              <div className="text-[10px] uppercase opacity-80 font-semibold inline-flex items-center gap-1">
+                <Truck size={11} /> Purchases this month
+              </div>
+              <div className="mt-1 text-lg font-extrabold tracking-tight">
+                {formatINR(purchaseStats?.total ?? 0)}
+              </div>
+              <div className="text-[10px] opacity-80">
+                {purchaseStats?.count ?? 0} bills · {formatINR(purchaseStats?.due ?? 0)} due
+              </div>
+            </div>
+            <ChevronRight size={16} className="opacity-80" />
+          </Link>
         </div>
       </div>
+
 
       <div className="px-4 mt-4">
         <Tabs defaultValue="outstanding">
