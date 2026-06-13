@@ -1,5 +1,6 @@
 import { LogOut } from "lucide-react";
 import { useState } from "react";
+import { ClientOnly } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
