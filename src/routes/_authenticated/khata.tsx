@@ -1,9 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, IndianRupee, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, ChevronRight, BarChart3 } from "lucide-react";
+import {
+  Search, IndianRupee, Bell, Share2, SlidersHorizontal,
+  UserPlus, ChevronRight, Check,
+} from "lucide-react";
 import { toast } from "sonner";
-import { ScreenHeader } from "@/components/ScreenHeader";
 import { sb, type Customer, type LedgerEntry } from "@/lib/db";
 import { useAuth } from "@/lib/auth-context";
 import { formatINR } from "@/lib/format";
@@ -11,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Logo } from "@/components/Logo";
 import {
   Sheet,
   SheetContent,
@@ -24,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/khata")({
   head: () => ({ meta: [
@@ -38,13 +42,34 @@ type CustomerBalance = Customer & {
   payment_total: number;
   balance: number;
   last_entry_at: string | null;
+  last_entry_type: "credit" | "payment" | null;
+  last_entry_amount: number | null;
 };
+
+type Tab = "all" | "due_today" | "pending" | "advance";
+
+function relTime(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const today = new Date();
+  const sameDay =
+    d.getFullYear() === today.getFullYear() &&
+    d.getMonth() === today.getMonth() &&
+    d.getDate() === today.getDate();
+  if (sameDay) return "Today";
+  const diff = Math.floor((today.getTime() - d.getTime()) / 86400000);
+  if (diff === 1) return "Yesterday";
+  if (diff < 7) return `${diff} days ago`;
+  return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+}
 
 function KhataPage() {
   const { profile } = useAuth();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<"balance" | "recent">("balance");
+  const [showSearch, setShowSearch] = useState(false);
+  const [tab, setTab] = useState<Tab>("all");
   const [entryOpen, setEntryOpen] = useState(false);
   const [entryCustomer, setEntryCustomer] = useState<Customer | null>(null);
   const [entryType, setEntryType] = useState<"credit" | "payment">("credit");
@@ -55,7 +80,7 @@ function KhataPage() {
     queryFn: async () => {
       const [custRes, ledgerRes] = await Promise.all([
         sb.from("customers").select("*").order("name"),
-        sb.from("ledger_entries").select("*"),
+        sb.from("ledger_entries").select("*").order("created_at", { ascending: false }),
       ]);
       if (custRes.error) throw custRes.error;
       if (ledgerRes.error) throw ledgerRes.error;
@@ -70,6 +95,8 @@ function KhataPage() {
           payment_total: 0,
           balance: 0,
           last_entry_at: null,
+          last_entry_type: null,
+          last_entry_amount: null,
         });
       }
       for (const e of entries) {
@@ -79,6 +106,8 @@ function KhataPage() {
         else row.payment_total += Number(e.amount);
         if (!row.last_entry_at || e.created_at > row.last_entry_at) {
           row.last_entry_at = e.created_at;
+          row.last_entry_type = e.entry_type as "credit" | "payment";
+          row.last_entry_amount = Number(e.amount);
         }
       }
       for (const r of map.values()) {
@@ -90,32 +119,38 @@ function KhataPage() {
         (a, r) => ({
           outstanding: a.outstanding + Math.max(r.balance, 0),
           advance: a.advance + Math.max(-r.balance, 0),
-          credit: a.credit + r.credit_total,
-          payment: a.payment + r.payment_total,
         }),
-        { outstanding: 0, advance: 0, credit: 0, payment: 0 },
+        { outstanding: 0, advance: 0 },
       );
-      return { rows, totals };
+      const net = totals.outstanding - totals.advance;
+      return { rows, totals, net };
     },
   });
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const rows = (data?.rows ?? []).filter((r) => {
-      if (!q) return true;
-      return (
-        r.name.toLowerCase().includes(q) ||
-        (r.mobile ?? "").includes(q) ||
-        (r.vehicle_number ?? "").toLowerCase().includes(q)
-      );
-    });
-    return rows.sort((a, b) => {
-      if (sort === "balance") return b.balance - a.balance;
-      const at = a.last_entry_at ?? "";
-      const bt = b.last_entry_at ?? "";
-      return bt.localeCompare(at);
-    });
-  }, [data, search, sort]);
+    const today = new Date().toISOString().slice(0, 10);
+    return (data?.rows ?? [])
+      .filter((r) => {
+        if (tab === "pending" && r.balance <= 0) return false;
+        if (tab === "advance" && r.balance >= 0) return false;
+        if (tab === "due_today") {
+          if (!r.last_entry_at) return false;
+          if (!r.last_entry_at.startsWith(today)) return false;
+        }
+        if (!q) return true;
+        return (
+          r.name.toLowerCase().includes(q) ||
+          (r.mobile ?? "").includes(q) ||
+          (r.vehicle_number ?? "").toLowerCase().includes(q)
+        );
+      })
+      .sort((a, b) => {
+        const bt = b.last_entry_at ?? "";
+        const at = a.last_entry_at ?? "";
+        return bt.localeCompare(at);
+      });
+  }, [data, search, tab]);
 
   function openEntry(customer: Customer, type: "credit" | "payment") {
     setEntryCustomer(customer);
@@ -123,119 +158,193 @@ function KhataPage() {
     setEntryOpen(true);
   }
 
+  const net = data?.net ?? 0;
+  const netLabel = net > 0 ? "You Get" : net < 0 ? "You Give" : "All Clear";
+  const netColor = net > 0 ? "text-destructive" : net < 0 ? "text-emerald-600" : "text-muted-foreground";
+
+  const TABS: { id: Tab; label: string }[] = [
+    { id: "all", label: "Customer" },
+    { id: "due_today", label: "Due Today" },
+    { id: "pending", label: "Pending Dues" },
+    { id: "advance", label: "Advance" },
+  ];
+
+  function initials(name: string) {
+    return name.trim().charAt(0).toUpperCase() || "?";
+  }
+
+  const avatarColors = [
+    "bg-amber-400 text-white",
+    "bg-sky-400 text-white",
+    "bg-rose-400 text-white",
+    "bg-emerald-400 text-white",
+    "bg-violet-400 text-white",
+    "bg-orange-400 text-white",
+  ];
+  function avatarColor(id: string) {
+    let h = 0;
+    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+    return avatarColors[h % avatarColors.length];
+  }
+
   return (
-    <div>
-      <ScreenHeader
-        title="Khata Book"
-        subtitle={`${data?.rows.length ?? 0} customers`}
-        right={
-          <Link
-            to="/reports"
-            className="inline-flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-xs font-semibold px-3 py-1.5 rounded-full"
-          >
-            <BarChart3 size={13} /> Reports
+    <div className="min-h-screen bg-[#eef2ef] pb-32">
+      {/* Top bar */}
+      <div className="px-4 pt-4 pb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Logo size={36} />
+          <div className="leading-tight">
+            <div className="text-sm font-bold">Khata Book</div>
+            <div className="text-[10px] text-muted-foreground">{profile?.shop_id ? "Bharat Auto Parts" : ""}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="grid place-items-center w-9 h-9 rounded-full bg-white shadow-card" aria-label="Share">
+            <Share2 size={15} />
+          </button>
+          <Link to="/reports" className="grid place-items-center w-9 h-9 rounded-full bg-white shadow-card" aria-label="Reports">
+            <Bell size={15} />
           </Link>
-        }
-      />
-
-      <div className="px-4 -mt-3 grid grid-cols-2 gap-3">
-        <div className="rounded-2xl p-4 shadow-card bg-destructive/10 border border-destructive/20">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-destructive">
-            <TrendingUp size={14} /> You will get
-          </div>
-          <div className="mt-1.5 text-xl font-bold text-destructive tracking-tight">
-            {formatINR(data?.totals.outstanding ?? 0)}
-          </div>
-        </div>
-        <div className="rounded-2xl p-4 shadow-card bg-emerald-500/10 border border-emerald-500/20">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-            <TrendingDown size={14} /> You will give
-          </div>
-          <div className="mt-1.5 text-xl font-bold text-emerald-700 dark:text-emerald-400 tracking-tight">
-            {formatINR(data?.totals.advance ?? 0)}
-          </div>
+          <button
+            onClick={() => setShowSearch((v) => !v)}
+            className="grid place-items-center w-9 h-9 rounded-full bg-white shadow-card"
+            aria-label="Search"
+          >
+            <Search size={15} />
+          </button>
         </div>
       </div>
 
-      <div className="px-4 mt-4 flex gap-2">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-3 text-muted-foreground" />
-          <Input
-            placeholder="Search name, mobile, vehicle"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-11 rounded-xl shadow-card bg-card"
-          />
-        </div>
-        <Select value={sort} onValueChange={(v: any) => setSort(v)}>
-          <SelectTrigger className="w-[120px] h-11 rounded-xl bg-card shadow-card">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="balance">Balance</SelectItem>
-            <SelectItem value="recent">Recent</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="px-4 mt-3 space-y-2">
-        {isLoading && (
-          <div className="text-center text-sm text-muted-foreground py-8">Loading…</div>
-        )}
-        {!isLoading && filtered.length === 0 && (
-          <div className="text-center text-sm text-muted-foreground py-16">
-            {search ? "No customers match" : "No customers yet. Add one from Clients →"}
+      {/* Search */}
+      {showSearch && (
+        <div className="px-4 pb-2">
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-3 text-muted-foreground" />
+            <Input
+              autoFocus
+              placeholder="Search name, mobile, vehicle"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 h-11 rounded-xl bg-white shadow-card border-0"
+            />
           </div>
-        )}
-        {filtered.map((r) => (
-          <div key={r.id} className="rounded-2xl bg-card shadow-card overflow-hidden">
-            <Link
-              to="/customers/$id"
-              params={{ id: r.id }}
-              className="flex items-center justify-between px-4 pt-3 pb-2"
-            >
-              <div className="min-w-0">
-                <div className="font-semibold text-sm truncate">{r.name}</div>
-                <div className="text-xs text-muted-foreground truncate">
-                  {r.mobile || r.vehicle_number || "—"}
-                </div>
-              </div>
-              <div className="text-right shrink-0 flex items-center gap-1">
-                <div>
-                  {r.balance > 0 ? (
-                    <>
-                      <div className="text-[10px] font-semibold text-destructive uppercase">Due</div>
-                      <div className="text-sm font-bold text-destructive">{formatINR(r.balance)}</div>
-                    </>
-                  ) : r.balance < 0 ? (
-                    <>
-                      <div className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 uppercase">Advance</div>
-                      <div className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{formatINR(-r.balance)}</div>
-                    </>
-                  ) : (
-                    <div className="text-xs text-muted-foreground">Clear</div>
-                  )}
-                </div>
-                <ChevronRight size={16} className="text-muted-foreground" />
-              </div>
-            </Link>
-            <div className="grid grid-cols-2 border-t border-border divide-x divide-border">
+        </div>
+      )}
+
+      {/* Content card */}
+      <div className="bg-white rounded-t-3xl pt-4 min-h-[calc(100vh-120px)]">
+        {/* Tabs */}
+        <div className="px-4 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-2 w-max">
+            {TABS.map((t) => (
               <button
-                onClick={() => openEntry(r, "credit")}
-                className="flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold text-destructive hover:bg-destructive/5"
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={cn(
+                  "px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap border transition-colors",
+                  tab === t.id
+                    ? "bg-emerald-50 border-emerald-500 text-emerald-700"
+                    : "bg-white border-border text-foreground/70",
+                )}
               >
-                <ArrowUpRight size={14} /> Credit (Udhaar)
+                {t.label}
               </button>
-              <button
-                onClick={() => openEntry(r, "payment")}
-                className="flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/5"
-              >
-                <ArrowDownRight size={14} /> Payment
+            ))}
+          </div>
+        </div>
+
+        {/* Net Balance */}
+        <div className="px-4 mt-4">
+          <div className="rounded-2xl bg-[#eef2ef] px-4 py-3 flex items-center justify-between">
+            <div>
+              <div className="text-sm font-bold">Net Balance</div>
+              <div className="text-[11px] text-muted-foreground mt-0.5">
+                {data?.rows.length ?? 0} Accounts
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className={cn("text-lg font-extrabold tracking-tight", netColor)}>
+                  {formatINR(Math.abs(net))}
+                </div>
+                <div className="text-[10px] text-muted-foreground -mt-0.5">{netLabel}</div>
+              </div>
+              <div className="h-8 w-px bg-border" />
+              <button className="grid place-items-center w-8 h-8" aria-label="Filter">
+                <SlidersHorizontal size={16} />
               </button>
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* List */}
+        <div className="mt-2 divide-y divide-border/70">
+          {isLoading && (
+            <div className="text-center text-sm text-muted-foreground py-10">Loading…</div>
+          )}
+          {!isLoading && filtered.length === 0 && (
+            <div className="text-center text-sm text-muted-foreground py-16 px-6">
+              {tab === "all" && !search
+                ? "No customers yet. Tap Add Customer below."
+                : "No matching customers."}
+            </div>
+          )}
+          {filtered.map((r) => (
+            <Link
+              key={r.id}
+              to="/customers/$id"
+              params={{ id: r.id }}
+              className="flex items-center gap-3 px-4 py-3 active:bg-muted/40"
+            >
+              <div className={cn(
+                "grid place-items-center w-11 h-11 rounded-full font-bold shrink-0",
+                avatarColor(r.id),
+              )}>
+                {initials(r.name)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-sm truncate">{r.name}</div>
+                <div className="text-[11px] text-muted-foreground truncate flex items-center gap-1">
+                  {r.last_entry_at ? (
+                    <>
+                      <Check size={11} className="text-muted-foreground" />
+                      {r.last_entry_type === "payment"
+                        ? `${formatINR(r.last_entry_amount ?? 0)} Payment Added`
+                        : `${formatINR(r.last_entry_amount ?? 0)} Credit Added`} {relTime(r.last_entry_at)}
+                    </>
+                  ) : (
+                    <>No entries yet</>
+                  )}
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                {r.balance > 0 ? (
+                  <>
+                    <div className="text-sm font-bold text-destructive">{formatINR(r.balance)}</div>
+                    <div className="text-[10px] text-muted-foreground -mt-0.5">Due</div>
+                  </>
+                ) : r.balance < 0 ? (
+                  <>
+                    <div className="text-sm font-bold text-emerald-600">{formatINR(-r.balance)}</div>
+                    <div className="text-[10px] text-muted-foreground -mt-0.5">Advance</div>
+                  </>
+                ) : (
+                  <div className="text-xs text-muted-foreground">Clear</div>
+                )}
+              </div>
+              <ChevronRight size={14} className="text-muted-foreground shrink-0" />
+            </Link>
+          ))}
+        </div>
       </div>
+
+      {/* Floating Add Customer */}
+      <button
+        onClick={() => navigate({ to: "/customers" })}
+        className="fixed bottom-24 right-4 z-30 inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 font-semibold text-sm px-4 py-3 rounded-2xl shadow-lg active:scale-95 transition-transform"
+      >
+        <UserPlus size={16} /> Add Customer
+      </button>
 
       <EntrySheet
         open={entryOpen}
@@ -309,7 +418,7 @@ export function EntrySheet({
       <SheetContent side="bottom" className="rounded-t-3xl">
         <SheetHeader>
           <SheetTitle className={isCredit ? "text-destructive" : "text-emerald-700 dark:text-emerald-400"}>
-            {isCredit ? "Credit (Udhaar Diya)" : "Payment Received"}
+            {isCredit ? "Given (Udhaar Diya)" : "Received (Payment)"}
           </SheetTitle>
         </SheetHeader>
         <div className="mt-4 space-y-4">
@@ -362,7 +471,7 @@ export function EntrySheet({
             className="w-full h-12"
             variant={isCredit ? "destructive" : "hero"}
           >
-            <IndianRupee size={16} /> {busy ? "Saving…" : isCredit ? "Save Credit" : "Save Payment"}
+            <IndianRupee size={16} /> {busy ? "Saving…" : isCredit ? "Save Given" : "Save Received"}
           </Button>
         </div>
       </SheetContent>
