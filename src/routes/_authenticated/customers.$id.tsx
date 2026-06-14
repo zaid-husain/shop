@@ -105,10 +105,11 @@ function CustomerProfilePage() {
     },
   });
 
+  type EntryRow = { entry: LedgerEntry; running: number };
   const grouped = useMemo(() => {
-    const groups: { day: string; label: string; items: typeof data.entries }[] = [];
+    const groups: { day: string; label: string; items: EntryRow[] }[] = [];
     if (!data) return groups;
-    for (const row of data.entries) {
+    for (const row of data.entries as EntryRow[]) {
       const key = dayKey(row.entry.entry_date);
       const last = groups[groups.length - 1];
       if (last && last.day === key) last.items.push(row);
