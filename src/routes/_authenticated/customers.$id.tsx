@@ -1,17 +1,25 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft, Phone, Car, MapPin, MessageCircle, ArrowUpRight, ArrowDownRight,
-  CalendarDays, FileText, Trash2, StickyNote, Download, Share2,
+  ArrowLeft, ArrowUp, ArrowDown, MessageCircle, Phone, FileText,
+  Search, Trash2, Calendar, Check, MoreHorizontal, Download, Share2,
+  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { sb, type Customer, type LedgerEntry, type Invoice } from "@/lib/db";
 import { useAuth } from "@/lib/auth-context";
-import { formatINR, formatDate, formatDateTime, buildWhatsAppUrl } from "@/lib/format";
+import { formatINR, formatDate, buildWhatsAppUrl } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { EntrySheet } from "./khata";
 import { downloadStatement, statementPdfBlob } from "@/lib/statement";
+import { cn } from "@/lib/utils";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/_authenticated/customers/$id")({
   head: () => ({ meta: [
@@ -21,6 +29,36 @@ export const Route = createFileRoute("/_authenticated/customers/$id")({
   component: CustomerProfilePage,
 });
 
+function timeLabel(iso: string) {
+  try {
+    return new Date(iso).toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch { return ""; }
+}
+
+function dayKey(iso: string) {
+  return iso.slice(0, 10);
+}
+
+function dayLabel(iso: string) {
+  const d = new Date(iso);
+  const today = new Date();
+  const sameDay =
+    d.getFullYear() === today.getFullYear() &&
+    d.getMonth() === today.getMonth() &&
+    d.getDate() === today.getDate();
+  if (sameDay) return "Today";
+  const yest = new Date(today); yest.setDate(today.getDate() - 1);
+  const sameYest =
+    d.getFullYear() === yest.getFullYear() &&
+    d.getMonth() === yest.getMonth() &&
+    d.getDate() === yest.getDate();
+  if (sameYest) return "Yesterday";
+  return formatDate(iso);
+}
+
 function CustomerProfilePage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
@@ -28,6 +66,7 @@ function CustomerProfilePage() {
   const qc = useQueryClient();
   const [entryOpen, setEntryOpen] = useState(false);
   const [entryType, setEntryType] = useState<"credit" | "payment">("credit");
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["customer-ledger", id, profile?.shop_id],
@@ -36,8 +75,8 @@ function CustomerProfilePage() {
       const [custRes, ledgerRes, invRes] = await Promise.all([
         sb.from("customers").select("*").eq("id", id).maybeSingle(),
         sb.from("ledger_entries").select("*").eq("customer_id", id)
-          .order("entry_date", { ascending: false })
-          .order("created_at", { ascending: false }),
+          .order("entry_date", { ascending: true })
+          .order("created_at", { ascending: true }),
         sb.from("invoices").select("*").eq("customer_id", id)
           .order("created_at", { ascending: false }).limit(50),
       ]);
@@ -55,9 +94,29 @@ function CustomerProfilePage() {
         .reduce((s, e) => s + Number(e.amount), 0);
       const balance = credit_total - payment_total;
 
-      return { customer, entries, invoices, credit_total, payment_total, balance };
+      // Running balance per entry (chronological asc)
+      let running = 0;
+      const withRunning = entries.map((e) => {
+        running += e.entry_type === "credit" ? Number(e.amount) : -Number(e.amount);
+        return { entry: e, running };
+      });
+
+      return { customer, entries: withRunning, invoices, credit_total, payment_total, balance };
     },
   });
+
+  type EntryRow = { entry: LedgerEntry; running: number };
+  const grouped = useMemo(() => {
+    const groups: { day: string; label: string; items: EntryRow[] }[] = [];
+    if (!data) return groups;
+    for (const row of data.entries as EntryRow[]) {
+      const key = dayKey(row.entry.entry_date);
+      const last = groups[groups.length - 1];
+      if (last && last.day === key) last.items.push(row);
+      else groups.push({ day: key, label: dayLabel(row.entry.entry_date), items: [row] });
+    }
+    return groups;
+  }, [data]);
 
   if (isLoading) {
     return <div className="p-8 text-center text-sm text-muted-foreground">Loading…</div>;
@@ -94,16 +153,21 @@ function CustomerProfilePage() {
     else toast.error("Invalid mobile number");
   }
 
+  function callCustomer() {
+    if (!c.mobile) return toast.error("No mobile number");
+    window.location.href = `tel:${c.mobile}`;
+  }
+
   function handleDownloadStatement() {
     if (!data) return;
-    downloadStatement({ customer: c, entries: data.entries });
+    downloadStatement({ customer: c, entries: data.entries.map((r) => r.entry) });
     toast.success("Statement downloaded");
   }
 
   async function handleShareStatement() {
     if (!data) return;
     try {
-      const blob = statementPdfBlob({ customer: c, entries: data.entries });
+      const blob = statementPdfBlob({ customer: c, entries: data.entries.map((r) => r.entry) });
       const file = new File([blob], `Statement_${c.name.replace(/\s+/g, "_")}.pdf`, { type: "application/pdf" });
       const nav: any = navigator;
       if (nav.canShare && nav.canShare({ files: [file] })) {
@@ -121,170 +185,227 @@ function CustomerProfilePage() {
     }
   }
 
+  const initial = c.name.trim().charAt(0).toUpperCase() || "?";
+
   return (
-    <div>
-      <div className="gradient-brand text-primary-foreground px-4 pt-4 pb-6 rounded-b-3xl shadow-card">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => navigate({ to: "/khata" })}
-            className="grid place-items-center w-9 h-9 rounded-full bg-white/15"
-            aria-label="Back"
-          >
-            <ArrowLeft size={18} />
-          </button>
-          <button
-            onClick={() => navigate({ to: "/customers" })}
-            className="text-xs font-semibold bg-white/15 px-3 py-1.5 rounded-full"
-          >
-            Edit details
-          </button>
-        </div>
-        <div className="mt-3">
-          <div className="text-xl font-bold tracking-tight">{c.name}</div>
-          <div className="mt-1 flex flex-wrap gap-3 text-xs opacity-90">
-            {c.mobile && <span className="inline-flex items-center gap-1"><Phone size={12} /> {c.mobile}</span>}
-            {c.vehicle_number && <span className="inline-flex items-center gap-1"><Car size={12} /> {c.vehicle_number}</span>}
-            {c.address && <span className="inline-flex items-center gap-1"><MapPin size={12} /> {c.address}</span>}
-          </div>
-        </div>
-
-        <div className="mt-5 bg-white/10 backdrop-blur rounded-2xl p-4">
-          <div className="text-xs uppercase opacity-80 font-semibold">
-            {balance > 0 ? "You will get" : balance < 0 ? "You will give" : "Balance"}
-          </div>
-          <div className="mt-1 text-3xl font-extrabold tracking-tight">
-            {formatINR(Math.abs(balance))}
-          </div>
-          <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <div className="opacity-70">Total Credit</div>
-              <div className="font-bold text-base">{formatINR(data.credit_total)}</div>
-            </div>
-            <div>
-              <div className="opacity-70">Total Received</div>
-              <div className="font-bold text-base">{formatINR(data.payment_total)}</div>
-            </div>
-          </div>
-        </div>
-
-        {balance > 0 && c.mobile && (
-          <Button
-            onClick={sendReminder}
-            className="w-full mt-3 bg-white text-foreground hover:bg-white/90"
-          >
-            <MessageCircle size={16} /> Send WhatsApp Reminder
-          </Button>
-        )}
-      </div>
-
-      <div className="px-4 mt-4 grid grid-cols-2 gap-3">
-        <Button
-          variant="destructive"
-          className="h-12"
-          onClick={() => { setEntryType("credit"); setEntryOpen(true); }}
+    <div className="min-h-screen bg-white flex flex-col pb-[200px]">
+      {/* Header */}
+      <header className="sticky top-0 z-20 bg-white border-b border-border px-3 py-3 flex items-center gap-3">
+        <button
+          onClick={() => navigate({ to: "/khata" })}
+          className="grid place-items-center w-9 h-9 rounded-full hover:bg-muted"
+          aria-label="Back"
         >
-          <ArrowUpRight size={16} /> Credit
-        </Button>
-        <Button
-          variant="hero"
-          className="h-12"
-          onClick={() => { setEntryType("payment"); setEntryOpen(true); }}
+          <ArrowLeft size={18} />
+        </button>
+        <div className="grid place-items-center w-10 h-10 rounded-full bg-amber-400 text-white font-bold shrink-0">
+          {initial}
+        </div>
+        <button
+          onClick={() => navigate({ to: "/customers" })}
+          className="flex-1 min-w-0 text-left"
         >
-          <ArrowDownRight size={16} /> Payment
-        </Button>
-      </div>
+          <div className="text-base font-bold truncate">{c.name}</div>
+          <div className="text-xs text-emerald-600 font-semibold">View Profile</div>
+        </button>
+        <button
+          onClick={handleDownloadStatement}
+          className="grid place-items-center w-9 h-9 rounded-full hover:bg-muted"
+          aria-label="Statement"
+        >
+          <FileText size={18} />
+        </button>
+        <button
+          onClick={() => navigate({ to: "/customers" })}
+          className="grid place-items-center w-9 h-9 rounded-full hover:bg-muted"
+          aria-label="Search"
+        >
+          <Search size={18} />
+        </button>
+      </header>
 
-      <div className="px-4 mt-3 grid grid-cols-2 gap-3">
-        <Button variant="outline" className="h-11" onClick={handleDownloadStatement}>
-          <Download size={15} /> Download Statement
-        </Button>
-        <Button variant="outline" className="h-11" onClick={handleShareStatement}>
-          <Share2 size={15} /> Share PDF
-        </Button>
-      </div>
-
-      <div className="px-4 mt-6">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-2">
-          Transactions
-        </h2>
-        {data.entries.length === 0 && (
-          <div className="rounded-2xl bg-card shadow-card p-8 text-center text-sm text-muted-foreground">
-            No entries yet. Add a credit or payment above.
+      {/* Transactions feed */}
+      <div className="flex-1 px-3 pt-4 space-y-3">
+        {grouped.length === 0 && (
+          <div className="text-center text-sm text-muted-foreground py-16">
+            No entries yet. Tap <span className="font-semibold text-foreground">Given</span> or{" "}
+            <span className="font-semibold text-foreground">Received</span> below to start.
           </div>
         )}
-        <div className="space-y-2">
-          {data.entries.map((e) => {
-            const isCredit = e.entry_type === "credit";
-            return (
-              <div key={e.id} className="rounded-2xl bg-card shadow-card p-4 flex items-start gap-3">
-                <div className={`grid place-items-center w-10 h-10 rounded-xl shrink-0 ${
-                  isCredit ? "bg-destructive/10 text-destructive" : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                }`}>
-                  {isCredit ? <ArrowUpRight size={18} /> : <ArrowDownRight size={18} />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="text-sm font-semibold">
-                      {isCredit ? "Credit Given" : "Payment Received"}
-                    </div>
-                    <div className={`text-base font-bold ${isCredit ? "text-destructive" : "text-emerald-700 dark:text-emerald-400"}`}>
-                      {isCredit ? "+" : "−"}{formatINR(Number(e.amount))}
-                    </div>
-                  </div>
-                  <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
-                    <CalendarDays size={11} />
-                    <span>{formatDate(e.entry_date)}</span>
-                    {e.payment_method && (
-                      <span className="uppercase font-semibold">· {e.payment_method}</span>
+        {grouped.map((g) => (
+          <div key={g.day} className="space-y-2">
+            <div className="flex justify-center">
+              <span className="text-[11px] font-semibold text-foreground/70 bg-muted px-3 py-1 rounded-full">
+                {g.label}
+              </span>
+            </div>
+            {g.items.map((row) => {
+              const e = row.entry;
+              const isCredit = e.entry_type === "credit";
+              return (
+                <div key={e.id} className={cn("flex flex-col", isCredit ? "items-end" : "items-start")}>
+                  <button
+                    onClick={() => deleteEntry(e.id)}
+                    className={cn(
+                      "max-w-[78%] rounded-2xl border bg-white shadow-sm px-3 py-2 text-left",
+                      "active:bg-muted/40",
+                      isCredit ? "border-destructive/30" : "border-emerald-500/30",
                     )}
-                  </div>
-                  {e.note && (
-                    <div className="mt-1.5 text-xs text-muted-foreground inline-flex items-start gap-1">
-                      <StickyNote size={11} className="mt-0.5 shrink-0" /> {e.note}
+                  >
+                    <div className="flex items-center gap-2">
+                      {isCredit ? (
+                        <ArrowUp size={16} className="text-foreground shrink-0" />
+                      ) : (
+                        <ArrowDown size={16} className="text-foreground shrink-0" />
+                      )}
+                      <div className="text-base font-bold tracking-tight">
+                        {formatINR(Number(e.amount))}
+                      </div>
+                      <div className="ml-auto text-[10px] text-muted-foreground flex items-center gap-1">
+                        {timeLabel(e.created_at)}
+                        <Check size={11} className="text-muted-foreground" />
+                      </div>
                     </div>
-                  )}
+                    {e.note && (
+                      <div className="mt-1 text-[11px] text-muted-foreground line-clamp-2">{e.note}</div>
+                    )}
+                  </button>
+                  <div className={cn(
+                    "text-[11px] font-semibold mt-1 px-1",
+                    row.running > 0 ? "text-destructive" : row.running < 0 ? "text-emerald-600" : "text-muted-foreground",
+                  )}>
+                    {row.running === 0
+                      ? "Settled"
+                      : `${formatINR(Math.abs(row.running))} ${row.running > 0 ? "Due" : "Advance"}`}
+                  </div>
                 </div>
-                <button
-                  onClick={() => deleteEntry(e.id)}
-                  className="text-muted-foreground hover:text-destructive p-1"
-                  aria-label="Delete"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom action stack */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-border">
+        {/* Quick action chips */}
+        <div className="bg-[#eef2ef] px-4 py-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleDownloadStatement}
+              className="grid place-items-center w-9 h-9 rounded-full bg-white shadow-sm"
+              aria-label="Download statement"
+            >
+              <Download size={15} />
+            </button>
+            <button
+              onClick={handleShareStatement}
+              className="grid place-items-center w-9 h-9 rounded-full bg-white shadow-sm"
+              aria-label="Share"
+            >
+              <Share2 size={15} />
+            </button>
+            <button
+              onClick={callCustomer}
+              className="grid place-items-center w-9 h-9 rounded-full bg-white shadow-sm"
+              aria-label="Call"
+            >
+              <Phone size={15} />
+            </button>
+            <button
+              onClick={sendReminder}
+              className="grid place-items-center w-9 h-9 rounded-full bg-white shadow-sm"
+              aria-label="WhatsApp"
+            >
+              <MessageCircle size={15} />
+            </button>
+          </div>
+          <button
+            onClick={() => setMoreOpen(true)}
+            className="inline-flex items-center gap-1 text-xs font-semibold"
+          >
+            More <MoreHorizontal size={14} />
+          </button>
+        </div>
+
+        {/* Due date + balance */}
+        <div className="px-4 py-2.5 flex items-center justify-between gap-3">
+          <button className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground/80 px-3 py-1.5 rounded-full border border-emerald-500/60">
+            <Calendar size={13} /> Due Date
+          </button>
+          <div className="flex items-center gap-3">
+            <button onClick={callCustomer} className="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-semibold px-3.5 py-2 rounded-full">
+              <Phone size={13} /> Call
+            </button>
+            <button onClick={sendReminder} className="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-semibold px-3.5 py-2 rounded-full">
+              <MessageCircle size={13} /> Remind
+            </button>
+          </div>
+        </div>
+
+        <div className="px-4 py-2 flex items-center justify-between border-t border-border">
+          <div className="text-xs font-semibold text-foreground/80">Balance Due</div>
+          <button className="inline-flex items-center gap-1 text-sm font-bold text-destructive">
+            {balance > 0 ? formatINR(balance) : balance < 0 ? `+${formatINR(-balance)}` : formatINR(0)}
+            <ChevronRight size={14} />
+          </button>
+        </div>
+
+        {/* Received / Given */}
+        <div className="grid grid-cols-2 gap-3 px-3 py-3 bg-[#eef2ef]">
+          <button
+            onClick={() => { setEntryType("payment"); setEntryOpen(true); }}
+            className="h-12 rounded-full bg-white border border-border inline-flex items-center justify-center gap-2 text-sm font-bold text-emerald-700"
+          >
+            <ArrowDown size={16} /> Received
+          </button>
+          <button
+            onClick={() => { setEntryType("credit"); setEntryOpen(true); }}
+            className="h-12 rounded-full bg-white border border-border inline-flex items-center justify-center gap-2 text-sm font-bold text-destructive"
+          >
+            <ArrowUp size={16} /> Given
+          </button>
         </div>
       </div>
 
-      {data.invoices.length > 0 && (
-        <div className="px-4 mt-6">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-2">
-            Recent Bills
-          </h2>
-          <div className="rounded-2xl bg-card shadow-card divide-y divide-border overflow-hidden">
-            {data.invoices.slice(0, 8).map((inv) => (
-              <div key={inv.id} className="flex items-center justify-between px-4 py-3">
-                <div className="min-w-0 flex items-center gap-2">
-                  <FileText size={14} className="text-muted-foreground shrink-0" />
-                  <div className="min-w-0">
-                    <div className="text-sm font-semibold truncate">{inv.invoice_number}</div>
-                    <div className="text-[11px] text-muted-foreground">{formatDateTime(inv.created_at)}</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-bold">{formatINR(Number(inv.total))}</div>
-                  {Number(inv.due) > 0 && (
-                    <div className="text-[10px] font-semibold text-destructive">Due {formatINR(Number(inv.due))}</div>
-                  )}
+      <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
+        <SheetContent side="bottom" className="rounded-t-3xl">
+          <SheetHeader>
+            <SheetTitle>More options</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 grid grid-cols-1 gap-2">
+            <Button variant="outline" className="justify-start h-12" onClick={() => { handleDownloadStatement(); setMoreOpen(false); }}>
+              <Download size={15} /> Download Statement
+            </Button>
+            <Button variant="outline" className="justify-start h-12" onClick={() => { handleShareStatement(); setMoreOpen(false); }}>
+              <Share2 size={15} /> Share PDF
+            </Button>
+            <Button variant="outline" className="justify-start h-12" onClick={() => { navigate({ to: "/customers" }); }}>
+              <FileText size={15} /> Edit profile
+            </Button>
+            {data.invoices.length > 0 && (
+              <div className="mt-3">
+                <div className="text-xs font-semibold uppercase text-muted-foreground mb-2">Recent Bills</div>
+                <div className="rounded-2xl border border-border divide-y divide-border overflow-hidden">
+                  {data.invoices.slice(0, 6).map((inv) => (
+                    <div key={inv.id} className="flex items-center justify-between px-3 py-2.5">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold truncate">{inv.invoice_number}</div>
+                        <div className="text-[11px] text-muted-foreground">{formatDate(inv.created_at)}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold">{formatINR(Number(inv.total))}</div>
+                        {Number(inv.due) > 0 && (
+                          <div className="text-[10px] font-semibold text-destructive">Due {formatINR(Number(inv.due))}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
           </div>
-        </div>
-      )}
-
-      <div className="h-10" />
+        </SheetContent>
+      </Sheet>
 
       <EntrySheet
         open={entryOpen}
