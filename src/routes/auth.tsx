@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Navigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -10,6 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" ? s.next : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Sign in — Bharat Auto Parts" },
@@ -23,9 +26,18 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+// Only accept same-origin relative paths — never an absolute URL an attacker
+// could stuff into ?next to bounce the user off-site after sign-in.
+function safeNext(next: string | undefined): string | null {
+  if (!next) return null;
+  if (!next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
+
 function AuthPage() {
   const { session, loading } = useAuth();
-  const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const target = safeNext(next) ?? "/dashboard";
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [shopName, setShopName] = useState("");
   const [ownerName, setOwnerName] = useState("");
@@ -34,10 +46,16 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && session) navigate({ to: "/dashboard", replace: true });
-  }, [session, loading, navigate]);
+    if (!loading && session) {
+      window.location.href = target;
+    }
+  }, [session, loading, target]);
 
-  if (session) return <Navigate to="/dashboard" replace />;
+  if (session) {
+    if (typeof window !== "undefined") window.location.href = target;
+    return null;
+  }
+
 
   const phoneDigits = phone.replace(/\D/g, "");
   const phoneValid = phoneDigits.length === 10;
@@ -64,7 +82,7 @@ function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
+            emailRedirectTo: `${window.location.origin}${target}`,
             data: {
               full_name: ownerName.trim(),
               phone: phoneDigits,
