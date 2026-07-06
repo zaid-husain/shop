@@ -36,7 +36,6 @@ function safeNext(next: string | undefined): string | null {
 
 function AuthPage() {
   const { session, loading } = useAuth();
-  const navigate = useNavigate();
   const { next } = Route.useSearch();
   const target = safeNext(next) ?? "/dashboard";
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -83,7 +82,7 @@ function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
+            emailRedirectTo: `${window.location.origin}${target}`,
             data: {
               full_name: ownerName.trim(),
               phone: phoneDigits,
