@@ -245,23 +245,24 @@ function CustomerProfilePage() {
               return (
                 <div key={e.id} className={cn("flex flex-col", isCredit ? "items-end" : "items-start")}>
                   <button
-                    onClick={() => deleteEntry(e.id)}
+                    onClick={() => {
+                      if (confirm("Delete this entry?")) deleteEntry(e.id);
+                    }}
                     className={cn(
-                      "max-w-[78%] rounded-2xl border bg-white shadow-sm px-3 py-2 text-left",
+                      "max-w-[78%] min-w-[150px] rounded-2xl border border-border bg-white shadow-sm px-3.5 py-2.5 text-left",
                       "active:bg-muted/40",
-                      isCredit ? "border-destructive/30" : "border-emerald-500/30",
                     )}
                   >
                     <div className="flex items-center gap-2">
                       {isCredit ? (
-                        <ArrowUp size={16} className="text-foreground shrink-0" />
+                        <ArrowUp size={16} className="text-foreground shrink-0" strokeWidth={2.5} />
                       ) : (
-                        <ArrowDown size={16} className="text-foreground shrink-0" />
+                        <ArrowDown size={16} className="text-foreground shrink-0" strokeWidth={2.5} />
                       )}
                       <div className="text-base font-bold tracking-tight">
                         {formatINR(Number(e.amount))}
                       </div>
-                      <div className="ml-auto text-[10px] text-muted-foreground flex items-center gap-1">
+                      <div className="ml-auto pl-4 text-[10px] text-muted-foreground flex items-center gap-1">
                         {timeLabel(e.created_at)}
                         <Check size={11} className="text-muted-foreground" />
                       </div>
@@ -270,10 +271,7 @@ function CustomerProfilePage() {
                       <div className="mt-1 text-[11px] text-muted-foreground line-clamp-2">{e.note}</div>
                     )}
                   </button>
-                  <div className={cn(
-                    "text-[11px] font-semibold mt-1 px-1",
-                    row.running > 0 ? "text-destructive" : row.running < 0 ? "text-emerald-600" : "text-muted-foreground",
-                  )}>
+                  <div className="text-[11px] font-medium mt-1 px-2 text-muted-foreground">
                     {row.running === 0
                       ? "Settled"
                       : `${formatINR(Math.abs(row.running))} ${row.running > 0 ? "Due" : "Advance"}`}
@@ -281,6 +279,7 @@ function CustomerProfilePage() {
                 </div>
               );
             })}
+
           </div>
         ))}
       </div>
