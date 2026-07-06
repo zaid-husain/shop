@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://nithgyhviocgfmwmlsmg.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "bharat-auto-parts-mcp",
+      "version": "0.1.0",
+      "title": "Bharat Auto Parts"
+    },
+    "tools": [
+      {
+        "name": "list_customers",
+        "title": "List customers",
+        "description": "List customers (Khata accounts) for the signed-in user's shop. Optionally filter by name or mobile number.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "search": {
+              "description": "Optional name or mobile number substring to filter by.",
+              "type": "string",
+              "minLength": 1
+            },
+            "limit": {
+              "default": 50,
+              "description": "Max rows to return.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_products",
+        "title": "List products (stock)",
+        "description": "List products in stock for the signed-in user's shop. Optionally filter by name and only show low stock.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "search": {
+              "description": "Optional name substring filter.",
+              "type": "string",
+              "minLength": 1
+            },
+            "low_stock_only": {
+              "default": false,
+              "description": "If true, return only items where stock is at or below the low-stock threshold.",
+              "type": "boolean"
+            },
+            "limit": {
+              "default": 50,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_recent_invoices",
+        "title": "List recent invoices (bills)",
+        "description": "List the most recent bills/invoices for the signed-in user's shop.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "limit": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "days": {
+              "description": "Optional: only include invoices from the last N days.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_sales_summary",
+        "title": "Sales summary",
+        "description": "Get a sales summary for the signed-in user's shop over the last N days: total sales, invoice count, and average bill value (INR).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "days": {
+              "default": 7,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
