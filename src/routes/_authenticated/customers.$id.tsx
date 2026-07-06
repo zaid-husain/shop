@@ -133,13 +133,13 @@ function CustomerProfilePage() {
   const balance = data.balance;
 
   async function deleteEntry(entryId: string) {
-    if (!confirm("Delete this entry?")) return;
     const { error } = await sb.from("ledger_entries").delete().eq("id", entryId);
     if (error) { console.error(error); return toast.error("Something went wrong. Please try again."); }
     toast.success("Entry deleted");
     qc.invalidateQueries({ queryKey: ["customer-ledger"] });
     qc.invalidateQueries({ queryKey: ["khata"] });
   }
+
 
   function sendReminder() {
     if (!c.mobile || balance <= 0) return;
