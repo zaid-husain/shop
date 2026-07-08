@@ -194,7 +194,7 @@ function KhataPage() {
         <div className="flex items-center gap-2">
           <Logo size={36} />
           <div className="leading-tight">
-            <div className="text-sm font-bold">Khata Book</div>
+            <h1 className="text-sm font-bold">Khata Book</h1>
             <div className="text-[10px] text-muted-foreground">{profile?.shop_id ? "Bharat Auto Parts" : ""}</div>
           </div>
         </div>

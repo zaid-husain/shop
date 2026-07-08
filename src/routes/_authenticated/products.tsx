@@ -26,10 +26,16 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/products")({
-  head: () => ({ meta: [
-    { title: "Inventory — Bharat Auto Parts" },
-    { name: "description", content: "Manage your spare parts stock, prices, brands, and low-stock alerts in one place." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Inventory Management — Bharat Auto Parts" },
+      { name: "description", content: "Manage your spare parts stock, prices, brands, and low-stock alerts in one place." },
+      { property: "og:title", content: "Inventory Management — Bharat Auto Parts" },
+      { property: "og:description", content: "Track spare parts stock, update prices, organise brands, and get low-stock alerts for your auto parts shop." },
+      { property: "og:url", content: "/products" },
+    ],
+    links: [{ rel: "canonical", href: "/products" }],
+  }),
   component: ProductsPage,
 });
 
