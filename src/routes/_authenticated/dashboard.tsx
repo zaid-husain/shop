@@ -12,7 +12,11 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
     meta: [
       { title: "Dashboard — Bharat Auto Parts" },
       { name: "description", content: "Today's sales, outstanding Khata, low stock alerts, and recent activity for your auto parts shop." },
+      { property: "og:title", content: "Shop Dashboard — Bharat Auto Parts" },
+      { property: "og:description", content: "See today's sales, dues, low stock alerts, and recent activity for your auto parts shop at a glance." },
+      { property: "og:url", content: "/dashboard" },
     ],
+    links: [{ rel: "canonical", href: "/dashboard" }],
   }),
   component: Dashboard,
 });

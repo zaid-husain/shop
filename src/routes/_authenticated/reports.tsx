@@ -178,7 +178,7 @@ function ReportsPage() {
         </div>
         <div className="mt-3">
           <div className="text-xs uppercase font-semibold opacity-80">Reports</div>
-          <div className="text-2xl font-bold tracking-tight">Business Insights</div>
+          <h1 className="text-2xl font-bold tracking-tight">Business Insights</h1>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
