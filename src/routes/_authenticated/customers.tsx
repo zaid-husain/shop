@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Phone, Car, MessageCircle, IndianRupee, CalendarDays, Send } from "lucide-react";
+import { Plus, Search, Phone, Car, MessageCircle, IndianRupee, CalendarDays, Send, Pencil, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { sb, type Customer, type Invoice } from "@/lib/db";
