@@ -112,35 +112,54 @@ function CustomersPage() {
         {filtered.map((c) => {
           const due = dueMap?.get(c.id) ?? 0;
           return (
-            <button
+            <div
               key={c.id}
-              onClick={() => { setEditing(c); setOpen(true); }}
-              className="w-full text-left rounded-2xl bg-card shadow-card p-4"
+              className="w-full rounded-2xl bg-card shadow-card flex items-stretch"
             >
-              <div className="flex items-center justify-between">
-                <div className="font-semibold text-sm">{c.name}</div>
-                {due > 0 && (
-                  <span className="text-[11px] font-bold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">
-                    Due {formatINR(due)}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                {c.mobile && (
-                  <span className="inline-flex items-center gap-1">
-                    <Phone size={12} /> {c.mobile}
-                  </span>
-                )}
-                {c.vehicle_number && (
-                  <span className="inline-flex items-center gap-1">
-                    <Car size={12} /> {c.vehicle_number}
-                  </span>
-                )}
-              </div>
-            </button>
+              <button
+                onClick={() => navigate({ to: "/customers/$id", params: { id: c.id } })}
+                className="flex-1 text-left p-4 min-w-0"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-semibold text-sm truncate">{c.name}</div>
+                  {due > 0 && (
+                    <span className="text-[11px] font-bold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full shrink-0">
+                      Due {formatINR(due)}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                  {c.mobile && (
+                    <span className="inline-flex items-center gap-1">
+                      <Phone size={12} /> {c.mobile}
+                    </span>
+                  )}
+                  {c.vehicle_number && (
+                    <span className="inline-flex items-center gap-1">
+                      <Car size={12} /> {c.vehicle_number}
+                    </span>
+                  )}
+                </div>
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setEditing(c); setOpen(true); }}
+                className="grid place-items-center px-3 text-muted-foreground hover:text-foreground border-l border-border"
+                aria-label="Edit customer"
+              >
+                <Pencil size={16} />
+              </button>
+              <button
+                onClick={() => navigate({ to: "/customers/$id", params: { id: c.id } })}
+                className="grid place-items-center pr-3 text-muted-foreground"
+                aria-label="Open history"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
           );
         })}
       </div>
+
 
       <CustomerSheet
         open={open}
