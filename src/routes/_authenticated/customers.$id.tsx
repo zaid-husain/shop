@@ -224,6 +224,21 @@ function CustomerProfilePage() {
         </button>
       </header>
 
+      {/* Due date + call/remind */}
+      <div className="px-4 py-3 flex items-center justify-between gap-3 bg-white border-b border-border">
+        <button className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground/80 px-3 py-1.5 rounded-full border border-emerald-500/60">
+          <Calendar size={13} /> Due Date
+        </button>
+        <div className="flex items-center gap-3">
+          <button onClick={callCustomer} className="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-semibold px-3.5 py-2 rounded-full">
+            <Phone size={13} /> Call
+          </button>
+          <button onClick={sendReminder} className="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-semibold px-3.5 py-2 rounded-full">
+            <MessageCircle size={13} /> Remind
+          </button>
+        </div>
+      </div>
+
       {/* Transactions feed */}
       <div className="flex-1 px-3 pt-4 space-y-3">
         {grouped.length === 0 && (
@@ -303,21 +318,7 @@ function CustomerProfilePage() {
         </div>
 
 
-        {/* Due date + balance */}
-        <div className="px-4 py-2.5 flex items-center justify-between gap-3">
-          <button className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground/80 px-3 py-1.5 rounded-full border border-emerald-500/60">
-            <Calendar size={13} /> Due Date
-          </button>
-          <div className="flex items-center gap-3">
-            <button onClick={callCustomer} className="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-semibold px-3.5 py-2 rounded-full">
-              <Phone size={13} /> Call
-            </button>
-            <button onClick={sendReminder} className="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-semibold px-3.5 py-2 rounded-full">
-              <MessageCircle size={13} /> Remind
-            </button>
-          </div>
-        </div>
-
+        {/* Balance due */}
         <div className="px-4 py-2 flex items-center justify-between border-t border-border">
           <div className="text-xs font-semibold text-foreground/80">Balance Due</div>
           <button className="inline-flex items-center gap-1 text-sm font-bold text-destructive">
