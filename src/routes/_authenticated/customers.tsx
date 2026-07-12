@@ -29,6 +29,7 @@ export const Route = createFileRoute("/_authenticated/customers")({
 function CustomersPage() {
   const { profile } = useAuth();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Customer | null>(null);
   const [open, setOpen] = useState(false);
