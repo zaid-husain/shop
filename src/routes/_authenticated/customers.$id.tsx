@@ -286,45 +286,22 @@ function CustomerProfilePage() {
 
       {/* Bottom action stack */}
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-border">
-        {/* Quick action chips */}
-        <div className="bg-[#eef2ef] px-4 py-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleDownloadStatement}
-              className="grid place-items-center w-9 h-9 rounded-full bg-white shadow-sm"
-              aria-label="Download statement"
-            >
-              <Download size={15} />
-            </button>
-            <button
-              onClick={handleShareStatement}
-              className="grid place-items-center w-9 h-9 rounded-full bg-white shadow-sm"
-              aria-label="Share"
-            >
-              <Share2 size={15} />
-            </button>
-            <button
-              onClick={callCustomer}
-              className="grid place-items-center w-9 h-9 rounded-full bg-white shadow-sm"
-              aria-label="Call"
-            >
-              <Phone size={15} />
-            </button>
-            <button
-              onClick={sendReminder}
-              className="grid place-items-center w-9 h-9 rounded-full bg-white shadow-sm"
-              aria-label="WhatsApp"
-            >
-              <MessageCircle size={15} />
-            </button>
-          </div>
+        {/* Payment quick actions */}
+        <div className="bg-[#eef2ef] px-3 py-3 grid grid-cols-2 gap-3">
           <button
-            onClick={() => setMoreOpen(true)}
-            className="inline-flex items-center gap-1 text-xs font-semibold"
+            onClick={() => { setEntryType("payment"); setEntryOpen(true); }}
+            className="h-12 rounded-full bg-emerald-600 text-white inline-flex items-center justify-center gap-2 text-sm font-bold shadow-sm active:bg-emerald-700"
           >
-            More <MoreHorizontal size={14} />
+            <ArrowDown size={16} /> Payment Received
+          </button>
+          <button
+            onClick={() => { setEntryType("credit"); setEntryOpen(true); }}
+            className="h-12 rounded-full bg-destructive text-white inline-flex items-center justify-center gap-2 text-sm font-bold shadow-sm active:opacity-90"
+          >
+            <ArrowUp size={16} /> Payment Add (Udhaar)
           </button>
         </div>
+
 
         {/* Due date + balance */}
         <div className="px-4 py-2.5 flex items-center justify-between gap-3">
@@ -349,21 +326,6 @@ function CustomerProfilePage() {
           </button>
         </div>
 
-        {/* Received / Given */}
-        <div className="grid grid-cols-2 gap-3 px-3 py-3 bg-[#eef2ef]">
-          <button
-            onClick={() => { setEntryType("payment"); setEntryOpen(true); }}
-            className="h-12 rounded-full bg-white border border-border inline-flex items-center justify-center gap-2 text-sm font-bold text-emerald-700"
-          >
-            <ArrowDown size={16} /> Received
-          </button>
-          <button
-            onClick={() => { setEntryType("credit"); setEntryOpen(true); }}
-            className="h-12 rounded-full bg-white border border-border inline-flex items-center justify-center gap-2 text-sm font-bold text-destructive"
-          >
-            <ArrowUp size={16} /> Given
-          </button>
-        </div>
       </div>
 
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
