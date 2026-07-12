@@ -326,21 +326,6 @@ function CustomerProfilePage() {
           </button>
         </div>
 
-        {/* Received / Given */}
-        <div className="grid grid-cols-2 gap-3 px-3 py-3 bg-[#eef2ef]">
-          <button
-            onClick={() => { setEntryType("payment"); setEntryOpen(true); }}
-            className="h-12 rounded-full bg-white border border-border inline-flex items-center justify-center gap-2 text-sm font-bold text-emerald-700"
-          >
-            <ArrowDown size={16} /> Received
-          </button>
-          <button
-            onClick={() => { setEntryType("credit"); setEntryOpen(true); }}
-            className="h-12 rounded-full bg-white border border-border inline-flex items-center justify-center gap-2 text-sm font-bold text-destructive"
-          >
-            <ArrowUp size={16} /> Given
-          </button>
-        </div>
       </div>
 
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
