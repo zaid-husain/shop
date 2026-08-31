@@ -7,51 +7,119 @@ export const Route = createFileRoute("/api/product-search")({
     handlers: {
       POST: async ({ request }) => {
         try {
-          // 1. Authenticate user from JWT
-          const authHeader = request.headers.get("authorization");
-          if (!authHeader?.toLowerCase().startsWith("bearer ")) {
-            return new Response(JSON.stringify({ success: false, message: "Unauthorized" }), {
-              status: 401,
-              headers: { "Content-Type": "application/json" },
-            });
-          }
-          const token = authHeader.slice(7).trim();
           const SUPABASE_URL = process.env.SUPABASE_URL!;
           const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY!;
+          const N8N_API_KEY = process.env.N8N_API_KEY;
+          const N8N_DEFAULT_SHOP_ID = process.env.N8N_DEFAULT_SHOP_ID;
 
-          const sb = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-            auth: { persistSession: false, autoRefreshToken: false },
-            global: { headers: { Authorization: `Bearer ${token}` } },
-          });
+          const n8nApiKeyHeader = request.headers.get("x-n8n-api-key");
+          const authHeader = request.headers.get("authorization");
 
-          const { data: claimsData } = await sb.auth.getUser(token);
-          if (!claimsData?.user?.id) {
-            return new Response(JSON.stringify({ success: false, message: "Unauthorized" }), {
-              status: 401,
-              headers: { "Content-Type": "application/json" },
+          let shopId: string | null = null;
+          let sbClient;
+          let isN8nRequest = false;
+
+          // Mode A: Server-to-server n8n API Key
+          if (n8nApiKeyHeader) {
+            if (!N8N_API_KEY || n8nApiKeyHeader !== N8N_API_KEY) {
+              return new Response(
+                JSON.stringify({
+                  success: false,
+                  message: "Unauthorized: Invalid or missing n8n API Key",
+                }),
+                {
+                  status: 401,
+                  headers: { "Content-Type": "application/json" },
+                },
+              );
+            }
+
+            if (!N8N_DEFAULT_SHOP_ID) {
+              return new Response(
+                JSON.stringify({
+                  success: false,
+                  message: "Server configuration error: N8N_DEFAULT_SHOP_ID is not configured",
+                }),
+                {
+                  status: 500,
+                  headers: { "Content-Type": "application/json" },
+                },
+              );
+            }
+
+            shopId = N8N_DEFAULT_SHOP_ID;
+            isN8nRequest = true;
+
+            const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || SUPABASE_PUBLISHABLE_KEY;
+            sbClient = createClient(SUPABASE_URL, serviceKey, {
+              auth: { persistSession: false, autoRefreshToken: false },
             });
           }
-          const authUserId = claimsData.user.id;
+          // Mode B: Standard Supabase Bearer JWT
+          else if (authHeader?.toLowerCase().startsWith("bearer ")) {
+            const token = authHeader.slice(7).trim();
+            const sb = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+              auth: { persistSession: false, autoRefreshToken: false },
+              global: { headers: { Authorization: `Bearer ${token}` } },
+            });
 
-          // 2. Resolve shop_id securely
-          const { data: profile } = await sb
-            .from("profiles")
-            .select("shop_id")
-            .eq("id", authUserId)
-            .single();
+            const { data: claimsData } = await sb.auth.getUser(token);
+            if (!claimsData?.user?.id) {
+              return new Response(
+                JSON.stringify({ success: false, message: "Unauthorized: Invalid token" }),
+                {
+                  status: 401,
+                  headers: { "Content-Type": "application/json" },
+                },
+              );
+            }
 
-          if (!profile) {
+            const { data: profile } = await sb
+              .from("profiles")
+              .select("shop_id")
+              .eq("id", claimsData.user.id)
+              .single();
+
+            if (!profile?.shop_id) {
+              return new Response(
+                JSON.stringify({ success: false, message: "Profile missing or access denied" }),
+                {
+                  status: 403,
+                  headers: { "Content-Type": "application/json" },
+                },
+              );
+            }
+
+            shopId = profile.shop_id;
+            sbClient = sb;
+          } else {
             return new Response(
-              JSON.stringify({ success: false, message: "Profile missing or access denied" }),
+              JSON.stringify({
+                success: false,
+                message:
+                  "Unauthorized: Missing authentication credentials (X-N8N-API-Key or Bearer token required)",
+              }),
               {
-                status: 403,
+                status: 401,
                 headers: { "Content-Type": "application/json" },
               },
             );
           }
-          const shopId = profile.shop_id;
 
-          // 3. Parse request payload
+          if (!shopId || !sbClient) {
+            return new Response(
+              JSON.stringify({
+                success: false,
+                message: "Unauthorized: Failed to resolve shop scope or database client",
+              }),
+              {
+                status: 401,
+                headers: { "Content-Type": "application/json" },
+              },
+            );
+          }
+
+          // Parse request payload
           const body = await request.json().catch(() => ({}));
           const query = body?.query;
           const limit = typeof body?.limit === "number" ? body.limit : 10;
@@ -66,10 +134,17 @@ export const Route = createFileRoute("/api/product-search")({
             );
           }
 
-          // 4. Call existing fuzzy search functionality
-          const rawResults = await searchProductsDB(sb, shopId, query, limit);
+          // Audit logging for n8n requests
+          if (isN8nRequest) {
+            console.log(
+              `[n8n Audit] Product Search | Query: "${query}" | Limit: ${limit} | ShopID: ${shopId} | Time: ${new Date().toISOString()}`,
+            );
+          }
 
-          // 5. Map fields exactly as n8n AI needs
+          // Call existing fuzzy search functionality
+          const rawResults = await searchProductsDB(sbClient, shopId, query, limit);
+
+          // Map fields exactly as n8n AI needs
           const mappedData = rawResults.map((r) => ({
             id: r.item.id,
             name: r.item.name,
