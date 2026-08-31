@@ -9,36 +9,41 @@ export const Route = createFileRoute("/api/product-search")({
         try {
           const SUPABASE_URL = process.env.SUPABASE_URL!;
           const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY!;
-          const N8N_API_KEY = process.env.N8N_API_KEY;
-          const N8N_DEFAULT_SHOP_ID = process.env.N8N_DEFAULT_SHOP_ID;
+          const N8N_INTEGRATION_SECRET = process.env.N8N_INTEGRATION_SECRET;
+          const N8N_SHOP_ID = process.env.N8N_SHOP_ID;
 
-          const n8nApiKeyHeader = request.headers.get("x-n8n-api-key");
           const authHeader = request.headers.get("authorization");
 
           let shopId: string | null = null;
           let sbClient;
           let isN8nRequest = false;
 
-          // Mode A: Server-to-server n8n API Key
-          if (n8nApiKeyHeader) {
-            if (!N8N_API_KEY || n8nApiKeyHeader !== N8N_API_KEY) {
-              return new Response(
-                JSON.stringify({
-                  success: false,
-                  message: "Unauthorized: Invalid or missing n8n API Key",
-                }),
-                {
-                  status: 401,
-                  headers: { "Content-Type": "application/json" },
-                },
-              );
-            }
+          const authBearer = authHeader?.toLowerCase().startsWith("bearer ")
+            ? authHeader.slice(7).trim()
+            : null;
 
-            if (!N8N_DEFAULT_SHOP_ID) {
+          if (!authBearer) {
+            return new Response(
+              JSON.stringify({
+                success: false,
+                message: "Unauthorized: Missing authentication credentials (Bearer token required)",
+              }),
+              {
+                status: 401,
+                headers: { "Content-Type": "application/json" },
+              },
+            );
+          }
+
+          // Mode A: Server-to-server n8n Integration Secret
+          if (N8N_INTEGRATION_SECRET && authBearer === N8N_INTEGRATION_SECRET) {
+            const uuidRegex =
+              /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+            if (!N8N_SHOP_ID || !uuidRegex.test(N8N_SHOP_ID)) {
               return new Response(
                 JSON.stringify({
                   success: false,
-                  message: "Server configuration error: N8N_DEFAULT_SHOP_ID is not configured",
+                  message: "Server configuration error: N8N_SHOP_ID is not configured or invalid",
                 }),
                 {
                   status: 500,
@@ -47,7 +52,7 @@ export const Route = createFileRoute("/api/product-search")({
               );
             }
 
-            shopId = N8N_DEFAULT_SHOP_ID;
+            shopId = N8N_SHOP_ID;
             isN8nRequest = true;
 
             const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || SUPABASE_PUBLISHABLE_KEY;
@@ -56,8 +61,8 @@ export const Route = createFileRoute("/api/product-search")({
             });
           }
           // Mode B: Standard Supabase Bearer JWT
-          else if (authHeader?.toLowerCase().startsWith("bearer ")) {
-            const token = authHeader.slice(7).trim();
+          else {
+            const token = authBearer;
             const sb = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
               auth: { persistSession: false, autoRefreshToken: false },
               global: { headers: { Authorization: `Bearer ${token}` } },
@@ -92,18 +97,6 @@ export const Route = createFileRoute("/api/product-search")({
 
             shopId = profile.shop_id;
             sbClient = sb;
-          } else {
-            return new Response(
-              JSON.stringify({
-                success: false,
-                message:
-                  "Unauthorized: Missing authentication credentials (X-N8N-API-Key or Bearer token required)",
-              }),
-              {
-                status: 401,
-                headers: { "Content-Type": "application/json" },
-              },
-            );
           }
 
           if (!shopId || !sbClient) {
