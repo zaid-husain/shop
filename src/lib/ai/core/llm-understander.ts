@@ -276,13 +276,12 @@ export async function understandWithLLM(
     const systemPrompt = buildSystemPrompt(context);
 
     const { object } = await generateObject({
-      model: groq("llama-3.1-70b-versatile"),
+      model: groq("llama-3.3-70b-versatile"),
       schema: StructuredOutputSchema,
       system: systemPrompt,
       prompt: userText,
-      temperature: 0.1, // Low temperature for consistent structured extraction
+      temperature: 0.1,
     });
-
     // Map the zod-validated result to our AIStructuredOutput type
     const result: AIStructuredOutput = {
       intent: object.intent,
