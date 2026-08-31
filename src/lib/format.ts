@@ -51,7 +51,10 @@ export function nextInvoiceNumber(): string {
   return `INV-${yy}${mm}${dd}-${rand}`;
 }
 
-export function buildWhatsAppUrl(mobile: string | null | undefined, message: string): string | null {
+export function buildWhatsAppUrl(
+  mobile: string | null | undefined,
+  message: string,
+): string | null {
   if (!mobile) return null;
   const digits = mobile.replace(/\D/g, "");
   if (digits.length < 10) return null;
@@ -61,11 +64,12 @@ export function buildWhatsAppUrl(mobile: string | null | undefined, message: str
 
 export function buildDueReminderMessage(
   customerName: string,
-  invoices: { invoice_number: string; total: number; due: number; created_at: string }[]
+  invoices: { invoice_number: string; total: number; due: number; created_at: string }[],
 ): string {
   const totalDue = invoices.reduce((s, i) => s + Number(i.due ?? 0), 0);
   const lines = invoices.map(
-    (i) => `• ${i.invoice_number} — ${formatINR(Number(i.total))} (Due: ${formatINR(Number(i.due))})`
+    (i) =>
+      `• ${i.invoice_number} — ${formatINR(Number(i.total))} (Due: ${formatINR(Number(i.due))})`,
   );
   return (
     `*Bharat Auto Parts*\n\n` +

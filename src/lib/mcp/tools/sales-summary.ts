@@ -28,7 +28,10 @@ export default defineTool({
       .gte("created_at", since);
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     const rows = data ?? [];
-    const total = rows.reduce((s: number, r: any) => s + Number(r.total ?? 0), 0);
+    const total = rows.reduce(
+      (s: number, r: Record<string, unknown>) => s + Number(r.total ?? 0),
+      0,
+    );
     const count = rows.length;
     const avg = count > 0 ? total / count : 0;
     const summary = {

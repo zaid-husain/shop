@@ -7,7 +7,11 @@ import { Logo } from "@/components/Logo";
 // Beta Supabase OAuth namespace — declare a minimal typed shim so TS is happy.
 type OAuthApi = {
   getAuthorizationDetails: (id: string) => Promise<{
-    data: { client?: { name?: string; logo_uri?: string }; redirect_url?: string; redirect_to?: string } | null;
+    data: {
+      client?: { name?: string; logo_uri?: string };
+      redirect_url?: string;
+      redirect_to?: string;
+    } | null;
     error: { message: string } | null;
   }>;
   approveAuthorization: (id: string) => Promise<{
@@ -83,15 +87,26 @@ function Consent() {
   return (
     <main className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-md rounded-2xl bg-card p-6 shadow-floating text-center space-y-4">
-        <div className="flex justify-center"><Logo size={56} /></div>
+        <div className="flex justify-center">
+          <Logo size={56} />
+        </div>
         <h1 className="text-xl font-bold">Connect {clientName}</h1>
         <p className="text-sm text-muted-foreground">
-          {clientName} wants to access your Bharat Auto Parts shop data (customers, stock, bills)
-          on your behalf. You can revoke access anytime.
+          {clientName} wants to access your Bharat Auto Parts shop data (customers, stock, bills) on
+          your behalf. You can revoke access anytime.
         </p>
-        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+        {error && (
+          <p role="alert" className="text-sm text-destructive">
+            {error}
+          </p>
+        )}
         <div className="flex gap-2 pt-2">
-          <Button variant="outline" className="flex-1" disabled={busy} onClick={() => decide(false)}>
+          <Button
+            variant="outline"
+            className="flex-1"
+            disabled={busy}
+            onClick={() => decide(false)}
+          >
             Deny
           </Button>
           <Button variant="hero" className="flex-1" disabled={busy} onClick={() => decide(true)}>

@@ -101,18 +101,29 @@ export function generateStatementPDF({
     }
     doc.setTextColor(40, 40, 40);
     doc.text(formatDate(e.entry_date), cols[0].x + 4, y);
-    doc.setTextColor(e.entry_type === "credit" ? 180 : 40, e.entry_type === "credit" ? 40 : 130, 40);
+    doc.setTextColor(
+      e.entry_type === "credit" ? 180 : 40,
+      e.entry_type === "credit" ? 40 : 130,
+      40,
+    );
     doc.text(
-      e.entry_type === "credit" ? "Credit (Udhaar)" : `Payment${e.payment_method ? ` · ${e.payment_method}` : ""}`,
+      e.entry_type === "credit"
+        ? "Credit (Udhaar)"
+        : `Payment${e.payment_method ? ` · ${e.payment_method}` : ""}`,
       cols[1].x + 4,
       y,
     );
     doc.setTextColor(40, 40, 40);
     const note = e.note ?? "";
     doc.text(note.length > 38 ? note.slice(0, 37) + "…" : note, cols[2].x + 4, y);
-    doc.text(`${e.entry_type === "credit" ? "+" : "−"}${formatINR(amt)}`, cols[3].x + cols[3].w, y, {
-      align: "right",
-    });
+    doc.text(
+      `${e.entry_type === "credit" ? "+" : "−"}${formatINR(amt)}`,
+      cols[3].x + cols[3].w,
+      y,
+      {
+        align: "right",
+      },
+    );
     doc.text(formatINR(Math.abs(bal)) + (bal < 0 ? " Cr" : ""), cols[4].x + cols[4].w, y, {
       align: "right",
     });
@@ -146,7 +157,11 @@ export function generateStatementPDF({
   doc.rect(M, y - 16, W - M * 2, 32, "F");
   doc.setFontSize(13);
   doc.setTextColor(bal > 0 ? 180 : 30, bal > 0 ? 30 : 120, 30);
-  doc.text(bal > 0 ? "Outstanding (You will get)" : bal < 0 ? "Advance (You will give)" : "Cleared", M + 8, y + 4);
+  doc.text(
+    bal > 0 ? "Outstanding (You will get)" : bal < 0 ? "Advance (You will give)" : "Cleared",
+    M + 8,
+    y + 4,
+  );
   doc.text(formatINR(Math.abs(bal)), W - M - 8, y + 4, { align: "right" });
 
   y += 50;

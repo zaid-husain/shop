@@ -4,19 +4,21 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search, Trash2, Package, Truck, IndianRupee, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { sb, PAYMENT_METHODS, type Product, type Purchase, type PurchaseItem, type Supplier } from "@/lib/db";
+import {
+  sb,
+  PAYMENT_METHODS,
+  type Product,
+  type Purchase,
+  type PurchaseItem,
+  type Supplier,
+} from "@/lib/db";
 import { useAuth } from "@/lib/auth-context";
 import { formatINR, formatDate } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
   Select,
   SelectContent,
@@ -29,7 +31,11 @@ export const Route = createFileRoute("/_authenticated/purchases")({
   head: () => ({
     meta: [
       { title: "Purchases — Bharat Auto Parts" },
-      { name: "description", content: "Record supplier purchases and stock-in entries. Stock and cost update automatically." },
+      {
+        name: "description",
+        content:
+          "Record supplier purchases and stock-in entries. Stock and cost update automatically.",
+      },
     ],
   }),
   component: PurchasesPage,
@@ -44,7 +50,13 @@ type Line = {
 };
 
 function newLine(): Line {
-  return { key: crypto.randomUUID(), product_id: null, product_name: "", quantity: "1", unit_cost: "" };
+  return {
+    key: crypto.randomUUID(),
+    product_id: null,
+    product_name: "",
+    quantity: "1",
+    unit_cost: "",
+  };
 }
 
 function PurchasesPage() {
@@ -97,7 +109,12 @@ function PurchasesPage() {
         title="Purchases"
         subtitle={`${data?.length ?? 0} bills`}
         right={
-          <Button size="icon-sm" variant="amber" onClick={() => setNewOpen(true)} aria-label="New purchase">
+          <Button
+            size="icon-sm"
+            variant="amber"
+            onClick={() => setNewOpen(true)}
+            aria-label="New purchase"
+          >
             <Plus size={18} />
           </Button>
         }
@@ -114,7 +131,9 @@ function PurchasesPage() {
           <div className="flex items-center gap-1.5 text-xs font-semibold text-destructive">
             <IndianRupee size={14} /> Supplier dues
           </div>
-          <div className="mt-1.5 text-xl font-bold text-destructive tracking-tight">{formatINR(monthDue)}</div>
+          <div className="mt-1.5 text-xl font-bold text-destructive tracking-tight">
+            {formatINR(monthDue)}
+          </div>
         </div>
       </div>
 
@@ -153,7 +172,9 @@ function PurchasesPage() {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <Truck size={14} className="text-muted-foreground shrink-0" />
-                <div className="font-semibold text-sm truncate">{p.supplier_name ?? "Unknown supplier"}</div>
+                <div className="font-semibold text-sm truncate">
+                  {p.supplier_name ?? "Unknown supplier"}
+                </div>
               </div>
               <div className="text-xs text-muted-foreground mt-0.5">
                 {formatDate(p.bill_date)}
@@ -369,25 +390,29 @@ function NewPurchaseSheet({
               }}
               placeholder="Supplier name"
             />
-            {!supplierId && supplierName && (suppliers ?? []).filter((s) =>
-              s.name.toLowerCase().includes(supplierName.toLowerCase()),
-            ).length > 0 && (
-              <div className="mt-1 rounded-xl border bg-card max-h-40 overflow-y-auto">
-                {(suppliers ?? [])
-                  .filter((s) => s.name.toLowerCase().includes(supplierName.toLowerCase()))
-                  .slice(0, 5)
-                  .map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => pickSupplier(s)}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-secondary border-b last:border-b-0"
-                    >
-                      <div className="font-medium">{s.name}</div>
-                      {s.mobile && <div className="text-xs text-muted-foreground">{s.mobile}</div>}
-                    </button>
-                  ))}
-              </div>
-            )}
+            {!supplierId &&
+              supplierName &&
+              (suppliers ?? []).filter((s) =>
+                s.name.toLowerCase().includes(supplierName.toLowerCase()),
+              ).length > 0 && (
+                <div className="mt-1 rounded-xl border bg-card max-h-40 overflow-y-auto">
+                  {(suppliers ?? [])
+                    .filter((s) => s.name.toLowerCase().includes(supplierName.toLowerCase()))
+                    .slice(0, 5)
+                    .map((s) => (
+                      <button
+                        key={s.id}
+                        onClick={() => pickSupplier(s)}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-secondary border-b last:border-b-0"
+                      >
+                        <div className="font-medium">{s.name}</div>
+                        {s.mobile && (
+                          <div className="text-xs text-muted-foreground">{s.mobile}</div>
+                        )}
+                      </button>
+                    ))}
+                </div>
+              )}
           </Field>
 
           {!supplierId && (
@@ -416,7 +441,9 @@ function NewPurchaseSheet({
 
           <div className="rounded-2xl border p-3 space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Items</Label>
+              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Items
+              </Label>
               <Button
                 size="sm"
                 variant="outline"
@@ -443,27 +470,32 @@ function NewPurchaseSheet({
                       onFocus={() => setProductPickerFor(l.key)}
                       placeholder={`Item ${idx + 1} name`}
                     />
-                    {productPickerFor === l.key && l.product_name && (products ?? []).filter((p) =>
-                      p.name.toLowerCase().includes(l.product_name.toLowerCase()),
-                    ).length > 0 && (
-                      <div className="mt-1 rounded-xl border bg-card max-h-40 overflow-y-auto">
-                        {(products ?? [])
-                          .filter((p) => p.name.toLowerCase().includes(l.product_name.toLowerCase()))
-                          .slice(0, 5)
-                          .map((p) => (
-                            <button
-                              key={p.id}
-                              onClick={() => pickProduct(l.key, p)}
-                              className="w-full text-left px-3 py-2 text-sm hover:bg-secondary border-b last:border-b-0"
-                            >
-                              <div className="font-medium">{p.name}</div>
-                              <div className="text-xs text-muted-foreground">
-                                Stock {p.stock_quantity} · cost {formatINR(Number(p.purchase_price))}
-                              </div>
-                            </button>
-                          ))}
-                      </div>
-                    )}
+                    {productPickerFor === l.key &&
+                      l.product_name &&
+                      (products ?? []).filter((p) =>
+                        p.name.toLowerCase().includes(l.product_name.toLowerCase()),
+                      ).length > 0 && (
+                        <div className="mt-1 rounded-xl border bg-card max-h-40 overflow-y-auto">
+                          {(products ?? [])
+                            .filter((p) =>
+                              p.name.toLowerCase().includes(l.product_name.toLowerCase()),
+                            )
+                            .slice(0, 5)
+                            .map((p) => (
+                              <button
+                                key={p.id}
+                                onClick={() => pickProduct(l.key, p)}
+                                className="w-full text-left px-3 py-2 text-sm hover:bg-secondary border-b last:border-b-0"
+                              >
+                                <div className="font-medium">{p.name}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  Stock {p.stock_quantity} · cost{" "}
+                                  {formatINR(Number(p.purchase_price))}
+                                </div>
+                              </button>
+                            ))}
+                        </div>
+                      )}
                   </div>
                   {lines.length > 1 && (
                     <Button
@@ -496,7 +528,9 @@ function NewPurchaseSheet({
                       value={l.unit_cost}
                       onChange={(e) =>
                         setLines((ls) =>
-                          ls.map((x) => (x.key === l.key ? { ...x, unit_cost: e.target.value } : x)),
+                          ls.map((x) =>
+                            x.key === l.key ? { ...x, unit_cost: e.target.value } : x,
+                          ),
                         )
                       }
                     />
@@ -532,10 +566,14 @@ function NewPurchaseSheet({
 
           <Field label="Payment method">
             <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-              <SelectTrigger aria-label="Payment method"><SelectValue /></SelectTrigger>
+              <SelectTrigger aria-label="Payment method">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 {PAYMENT_METHODS.map((m) => (
-                  <SelectItem key={m} value={m} className="capitalize">{m}</SelectItem>
+                  <SelectItem key={m} value={m} className="capitalize">
+                    {m}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -546,12 +584,27 @@ function NewPurchaseSheet({
           </Field>
 
           <div className="rounded-2xl bg-muted/50 p-3 text-sm space-y-1">
-            <div className="flex justify-between"><span>Subtotal</span><span>{formatINR(subtotal)}</span></div>
-            <div className="flex justify-between"><span>Discount</span><span>−{formatINR(Number(discount) || 0)}</span></div>
-            <div className="flex justify-between font-bold text-base"><span>Total</span><span>{formatINR(total)}</span></div>
-            <div className="flex justify-between text-emerald-700 dark:text-emerald-400"><span>Paid</span><span>{formatINR(paidNum)}</span></div>
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>{formatINR(subtotal)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Discount</span>
+              <span>−{formatINR(Number(discount) || 0)}</span>
+            </div>
+            <div className="flex justify-between font-bold text-base">
+              <span>Total</span>
+              <span>{formatINR(total)}</span>
+            </div>
+            <div className="flex justify-between text-emerald-700 dark:text-emerald-400">
+              <span>Paid</span>
+              <span>{formatINR(paidNum)}</span>
+            </div>
             {due > 0 && (
-              <div className="flex justify-between text-destructive font-semibold"><span>Due</span><span>{formatINR(due)}</span></div>
+              <div className="flex justify-between text-destructive font-semibold">
+                <span>Due</span>
+                <span>{formatINR(due)}</span>
+              </div>
             )}
           </div>
 
@@ -617,14 +670,29 @@ function PurchaseDetailSheet({
             </div>
 
             <div className="rounded-2xl bg-muted/50 p-3 text-sm space-y-1">
-              <div className="flex justify-between"><span>Subtotal</span><span>{formatINR(Number(purchase.subtotal))}</span></div>
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>{formatINR(Number(purchase.subtotal))}</span>
+              </div>
               {Number(purchase.discount) > 0 && (
-                <div className="flex justify-between"><span>Discount</span><span>−{formatINR(Number(purchase.discount))}</span></div>
+                <div className="flex justify-between">
+                  <span>Discount</span>
+                  <span>−{formatINR(Number(purchase.discount))}</span>
+                </div>
               )}
-              <div className="flex justify-between font-bold text-base"><span>Total</span><span>{formatINR(Number(purchase.total))}</span></div>
-              <div className="flex justify-between text-emerald-700 dark:text-emerald-400"><span>Paid</span><span>{formatINR(Number(purchase.paid))}</span></div>
+              <div className="flex justify-between font-bold text-base">
+                <span>Total</span>
+                <span>{formatINR(Number(purchase.total))}</span>
+              </div>
+              <div className="flex justify-between text-emerald-700 dark:text-emerald-400">
+                <span>Paid</span>
+                <span>{formatINR(Number(purchase.paid))}</span>
+              </div>
               {Number(purchase.due) > 0 && (
-                <div className="flex justify-between text-destructive font-semibold"><span>Due</span><span>{formatINR(Number(purchase.due))}</span></div>
+                <div className="flex justify-between text-destructive font-semibold">
+                  <span>Due</span>
+                  <span>{formatINR(Number(purchase.due))}</span>
+                </div>
               )}
             </div>
 

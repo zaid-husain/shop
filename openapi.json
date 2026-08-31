@@ -1,0 +1,5085 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "",
+    "title": "standard public schema",
+    "version": "14.5"
+  },
+  "host": "zcvvqhytlsheuhbbsceb.supabase.co:443",
+  "basePath": "/",
+  "schemes": ["https"],
+  "consumes": [
+    "application/json",
+    "application/vnd.pgrst.object+json;nulls=stripped",
+    "application/vnd.pgrst.object+json",
+    "text/csv"
+  ],
+  "produces": [
+    "application/json",
+    "application/vnd.pgrst.object+json;nulls=stripped",
+    "application/vnd.pgrst.object+json",
+    "text/csv"
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "produces": ["application/openapi+json", "application/json"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "OpenAPI description (this document)",
+        "tags": ["Introspection"]
+      }
+    },
+    "/invoices": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.invoices.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.invoice_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_mobile"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.subtotal"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.discount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.paid"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.due"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.payment_status"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.payment_method"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.cost_total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.profit"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.created_by"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.shop_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_name_snapshot"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_mobile_snapshot"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/invoices"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["invoices"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.invoices"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["invoices"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.invoices.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.invoice_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_mobile"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.subtotal"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.discount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.paid"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.due"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.payment_status"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.payment_method"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.cost_total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.profit"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.created_by"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.shop_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_name_snapshot"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_mobile_snapshot"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["invoices"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.invoices.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.invoice_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_mobile"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.subtotal"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.discount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.paid"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.due"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.payment_status"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.payment_method"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.cost_total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.profit"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.created_by"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.shop_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_name_snapshot"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoices.customer_mobile_snapshot"
+          },
+          {
+            "$ref": "#/parameters/body.invoices"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["invoices"]
+      }
+    },
+    "/purchases": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.purchases.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.supplier_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.supplier_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.bill_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.bill_date"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.subtotal"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.discount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.paid"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.due"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.payment_method"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.created_by"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.updated_at"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/purchases"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["purchases"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.purchases"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["purchases"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.purchases.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.supplier_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.supplier_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.bill_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.bill_date"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.subtotal"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.discount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.paid"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.due"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.payment_method"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.created_by"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.updated_at"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["purchases"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.purchases.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.supplier_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.supplier_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.bill_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.bill_date"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.subtotal"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.discount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.paid"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.due"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.payment_method"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.created_by"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchases.updated_at"
+          },
+          {
+            "$ref": "#/parameters/body.purchases"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["purchases"]
+      }
+    },
+    "/purchase_items": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.purchase_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.product_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.product_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.quantity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.unit_cost"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.line_total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.created_at"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/purchase_items"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["purchase_items"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.purchase_items"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["purchase_items"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.purchase_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.product_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.product_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.quantity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.unit_cost"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.line_total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.created_at"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["purchase_items"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.purchase_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.product_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.product_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.quantity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.unit_cost"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.line_total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.purchase_items.created_at"
+          },
+          {
+            "$ref": "#/parameters/body.purchase_items"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["purchase_items"]
+      }
+    },
+    "/user_roles": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.user_roles.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.user_roles.user_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.user_roles.role"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.user_roles.shop_id"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/user_roles"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["user_roles"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.user_roles"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["user_roles"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.user_roles.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.user_roles.user_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.user_roles.role"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.user_roles.shop_id"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["user_roles"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.user_roles.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.user_roles.user_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.user_roles.role"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.user_roles.shop_id"
+          },
+          {
+            "$ref": "#/parameters/body.user_roles"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["user_roles"]
+      }
+    },
+    "/ledger_entries": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.customer_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.entry_type"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.entry_date"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.note"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.payment_method"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.created_by"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.updated_at"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/ledger_entries"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["ledger_entries"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.ledger_entries"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["ledger_entries"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.customer_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.entry_type"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.entry_date"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.note"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.payment_method"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.created_by"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.updated_at"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["ledger_entries"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.customer_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.entry_type"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.entry_date"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.note"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.payment_method"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.created_by"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_entries.updated_at"
+          },
+          {
+            "$ref": "#/parameters/body.ledger_entries"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["ledger_entries"]
+      }
+    },
+    "/customers": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.customers.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.mobile"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.vehicle_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.address"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.updated_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.balance_cache"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.deleted_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.version"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/customers"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["customers"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.customers"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["customers"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.customers.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.mobile"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.vehicle_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.address"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.updated_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.balance_cache"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.deleted_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.version"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["customers"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.customers.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.mobile"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.vehicle_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.address"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.updated_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.balance_cache"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.deleted_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.customers.version"
+          },
+          {
+            "$ref": "#/parameters/body.customers"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["customers"]
+      }
+    },
+    "/audit_log": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.user_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.action"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.entity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.entity_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.metadata"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.created_at"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/audit_log"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["audit_log"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.audit_log"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["audit_log"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.user_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.action"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.entity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.entity_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.metadata"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.created_at"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["audit_log"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.user_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.action"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.entity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.entity_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.metadata"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.audit_log.created_at"
+          },
+          {
+            "$ref": "#/parameters/body.audit_log"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["audit_log"]
+      }
+    },
+    "/payments": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.payments.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.customer_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.payment_method"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.reference_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.created_at"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/payments"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["payments"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.payments"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["payments"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.payments.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.customer_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.payment_method"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.reference_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.created_at"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["payments"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.payments.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.customer_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.payment_method"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.reference_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.created_at"
+          },
+          {
+            "$ref": "#/parameters/body.payments"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["payments"]
+      }
+    },
+    "/products": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.products.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.part_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.category"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.brand"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.variant"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.purchase_price"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.selling_price"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.stock_quantity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.low_stock_threshold"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.image_url"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.is_active"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.updated_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.deleted_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.version"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/products"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["products"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.products"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["products"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.products.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.part_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.category"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.brand"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.variant"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.purchase_price"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.selling_price"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.stock_quantity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.low_stock_threshold"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.image_url"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.is_active"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.updated_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.deleted_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.version"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["products"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.products.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.part_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.category"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.brand"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.variant"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.purchase_price"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.selling_price"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.stock_quantity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.low_stock_threshold"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.image_url"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.is_active"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.updated_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.deleted_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.products.version"
+          },
+          {
+            "$ref": "#/parameters/body.products"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["products"]
+      }
+    },
+    "/invoice_items": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.invoice_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.product_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.product_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.part_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.quantity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.unit_price"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.unit_cost"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.line_total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.created_at"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/invoice_items"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["invoice_items"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.invoice_items"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["invoice_items"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.invoice_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.product_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.product_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.part_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.quantity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.unit_price"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.unit_cost"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.line_total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.created_at"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["invoice_items"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.invoice_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.product_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.product_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.part_number"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.quantity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.unit_price"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.unit_cost"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.line_total"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.invoice_items.created_at"
+          },
+          {
+            "$ref": "#/parameters/body.invoice_items"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["invoice_items"]
+      }
+    },
+    "/profiles": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.profiles.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.full_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.phone"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.pin_hash"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.updated_at"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/profiles"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["profiles"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.profiles"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["profiles"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.profiles.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.full_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.phone"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.pin_hash"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.updated_at"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["profiles"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.profiles.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.full_name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.phone"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.pin_hash"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.profiles.updated_at"
+          },
+          {
+            "$ref": "#/parameters/body.profiles"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["profiles"]
+      }
+    },
+    "/idempotent_requests": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.operation_type"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.request_hash"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.result_reference_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.processing_status"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.created_at"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/idempotent_requests"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["idempotent_requests"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.idempotent_requests"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["idempotent_requests"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.operation_type"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.request_hash"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.result_reference_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.processing_status"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.created_at"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["idempotent_requests"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.operation_type"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.request_hash"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.result_reference_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.processing_status"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.idempotent_requests.created_at"
+          },
+          {
+            "$ref": "#/parameters/body.idempotent_requests"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["idempotent_requests"]
+      }
+    },
+    "/suppliers": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.mobile"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.address"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.updated_at"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/suppliers"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["suppliers"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.suppliers"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["suppliers"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.mobile"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.address"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.updated_at"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["suppliers"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.mobile"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.address"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.notes"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.suppliers.updated_at"
+          },
+          {
+            "$ref": "#/parameters/body.suppliers"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["suppliers"]
+      }
+    },
+    "/inventory_movements": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.product_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.movement_type"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.quantity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.reference_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.created_at"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/inventory_movements"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["inventory_movements"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.inventory_movements"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["inventory_movements"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.product_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.movement_type"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.quantity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.reference_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.created_at"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["inventory_movements"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.product_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.movement_type"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.quantity"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.reference_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.inventory_movements.created_at"
+          },
+          {
+            "$ref": "#/parameters/body.inventory_movements"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["inventory_movements"]
+      }
+    },
+    "/ledger_transactions": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.customer_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.transaction_type"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.balance_impact"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.reference_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.created_at"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/ledger_transactions"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": ["ledger_transactions"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.ledger_transactions"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": ["ledger_transactions"]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.customer_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.transaction_type"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.balance_impact"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.reference_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.created_at"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["ledger_transactions"]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.shop_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.customer_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.transaction_type"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.balance_impact"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.reference_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.idempotency_key"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.ledger_transactions.created_at"
+          },
+          {
+            "$ref": "#/parameters/body.ledger_transactions"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": ["ledger_transactions"]
+      }
+    },
+    "/rpc/current_shop_id": {
+      "get": {
+        "produces": [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["(rpc) current_shop_id"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "args",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          },
+          {
+            "$ref": "#/parameters/preferParams"
+          }
+        ],
+        "produces": [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["(rpc) current_shop_id"]
+      }
+    },
+    "/rpc/create_sale": {
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "args",
+            "required": true,
+            "schema": {
+              "properties": {
+                "p_cost_total": {
+                  "format": "numeric",
+                  "type": "number"
+                },
+                "p_customer_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "p_discount": {
+                  "format": "numeric",
+                  "type": "number"
+                },
+                "p_due": {
+                  "format": "numeric",
+                  "type": "number"
+                },
+                "p_idempotency_key": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "p_invoice_number": {
+                  "format": "character varying",
+                  "type": "string"
+                },
+                "p_items": {
+                  "format": "jsonb"
+                },
+                "p_notes": {
+                  "format": "text",
+                  "type": "string"
+                },
+                "p_paid": {
+                  "format": "numeric",
+                  "type": "number"
+                },
+                "p_request_hash": {
+                  "format": "character varying",
+                  "type": "string"
+                },
+                "p_shop_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "p_total": {
+                  "format": "numeric",
+                  "type": "number"
+                }
+              },
+              "required": [
+                "p_idempotency_key",
+                "p_request_hash",
+                "p_shop_id",
+                "p_customer_id",
+                "p_invoice_number",
+                "p_cost_total",
+                "p_discount",
+                "p_total",
+                "p_paid",
+                "p_due",
+                "p_notes",
+                "p_items"
+              ],
+              "type": "object"
+            }
+          },
+          {
+            "$ref": "#/parameters/preferParams"
+          }
+        ],
+        "produces": [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["(rpc) create_sale"]
+      }
+    },
+    "/rpc/has_role": {
+      "get": {
+        "parameters": [
+          {
+            "format": "uuid",
+            "in": "query",
+            "name": "_user_id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "format": "public.app_role",
+            "in": "query",
+            "name": "_role",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["(rpc) has_role"]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "args",
+            "required": true,
+            "schema": {
+              "properties": {
+                "_role": {
+                  "format": "public.app_role",
+                  "type": "string"
+                },
+                "_user_id": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              },
+              "required": ["_user_id", "_role"],
+              "type": "object"
+            }
+          },
+          {
+            "$ref": "#/parameters/preferParams"
+          }
+        ],
+        "produces": [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": ["(rpc) has_role"]
+      }
+    }
+  },
+  "definitions": {
+    "invoices": {
+      "required": [
+        "id",
+        "shop_id",
+        "invoice_number",
+        "subtotal",
+        "discount",
+        "total",
+        "paid",
+        "due",
+        "payment_status",
+        "cost_total",
+        "profit",
+        "created_at"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "invoice_number": {
+          "format": "text",
+          "type": "string"
+        },
+        "customer_id": {
+          "description": "Note:\nThis is a Foreign Key to `customers.id`.<fk table='customers' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "customer_name": {
+          "format": "text",
+          "type": "string"
+        },
+        "customer_mobile": {
+          "format": "text",
+          "type": "string"
+        },
+        "subtotal": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "discount": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "total": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "paid": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "due": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "payment_status": {
+          "default": "paid",
+          "format": "text",
+          "type": "string"
+        },
+        "payment_method": {
+          "format": "text",
+          "type": "string"
+        },
+        "notes": {
+          "format": "text",
+          "type": "string"
+        },
+        "cost_total": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "profit": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "created_by": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_name": {
+          "format": "character varying",
+          "maxLength": 255,
+          "type": "string"
+        },
+        "customer_name_snapshot": {
+          "format": "character varying",
+          "maxLength": 255,
+          "type": "string"
+        },
+        "customer_mobile_snapshot": {
+          "format": "character varying",
+          "maxLength": 50,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "purchases": {
+      "required": [
+        "id",
+        "shop_id",
+        "bill_date",
+        "subtotal",
+        "discount",
+        "total",
+        "paid",
+        "due",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "supplier_id": {
+          "description": "Note:\nThis is a Foreign Key to `suppliers.id`.<fk table='suppliers' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "supplier_name": {
+          "format": "text",
+          "type": "string"
+        },
+        "bill_number": {
+          "format": "text",
+          "type": "string"
+        },
+        "bill_date": {
+          "default": "CURRENT_DATE",
+          "format": "date",
+          "type": "string"
+        },
+        "subtotal": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "discount": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "total": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "paid": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "due": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "payment_method": {
+          "format": "text",
+          "type": "string"
+        },
+        "notes": {
+          "format": "text",
+          "type": "string"
+        },
+        "created_by": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "updated_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "purchase_items": {
+      "required": [
+        "id",
+        "purchase_id",
+        "shop_id",
+        "product_name",
+        "quantity",
+        "unit_cost",
+        "line_total",
+        "created_at"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "purchase_id": {
+          "description": "Note:\nThis is a Foreign Key to `purchases.id`.<fk table='purchases' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "product_id": {
+          "description": "Note:\nThis is a Foreign Key to `products.id`.<fk table='products' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "product_name": {
+          "format": "text",
+          "type": "string"
+        },
+        "quantity": {
+          "format": "numeric",
+          "type": "number"
+        },
+        "unit_cost": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "line_total": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "user_roles": {
+      "required": ["id", "user_id", "role", "shop_id"],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "user_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "role": {
+          "enum": ["owner", "staff"],
+          "format": "public.app_role",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ledger_entries": {
+      "required": [
+        "id",
+        "shop_id",
+        "customer_id",
+        "entry_type",
+        "amount",
+        "entry_date",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "customer_id": {
+          "description": "Note:\nThis is a Foreign Key to `customers.id`.<fk table='customers' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "entry_type": {
+          "enum": ["credit", "payment"],
+          "format": "public.ledger_entry_type",
+          "type": "string"
+        },
+        "amount": {
+          "format": "numeric",
+          "type": "number"
+        },
+        "entry_date": {
+          "default": "CURRENT_DATE",
+          "format": "date",
+          "type": "string"
+        },
+        "note": {
+          "format": "text",
+          "type": "string"
+        },
+        "payment_method": {
+          "format": "text",
+          "type": "string"
+        },
+        "created_by": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "updated_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "customers": {
+      "required": ["id", "shop_id", "name", "created_at", "updated_at", "version"],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "name": {
+          "format": "text",
+          "type": "string"
+        },
+        "mobile": {
+          "format": "text",
+          "type": "string"
+        },
+        "vehicle_number": {
+          "format": "text",
+          "type": "string"
+        },
+        "address": {
+          "format": "text",
+          "type": "string"
+        },
+        "notes": {
+          "format": "text",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "updated_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "balance_cache": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "deleted_at": {
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "format": "integer",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "audit_log": {
+      "required": ["id", "shop_id", "action", "created_at"],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "user_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "action": {
+          "format": "text",
+          "type": "string"
+        },
+        "entity": {
+          "format": "text",
+          "type": "string"
+        },
+        "entity_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "metadata": {
+          "format": "jsonb"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "payments": {
+      "required": ["id", "shop_id", "customer_id", "amount", "payment_method", "created_at"],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "customer_id": {
+          "description": "Note:\nThis is a Foreign Key to `customers.id`.<fk table='customers' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "amount": {
+          "format": "numeric",
+          "type": "number"
+        },
+        "payment_method": {
+          "format": "character varying",
+          "maxLength": 50,
+          "type": "string"
+        },
+        "reference_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "products": {
+      "required": [
+        "id",
+        "shop_id",
+        "name",
+        "category",
+        "purchase_price",
+        "selling_price",
+        "stock_quantity",
+        "low_stock_threshold",
+        "is_active",
+        "created_at",
+        "updated_at",
+        "version"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "name": {
+          "format": "text",
+          "type": "string"
+        },
+        "part_number": {
+          "format": "text",
+          "type": "string"
+        },
+        "category": {
+          "default": "Other",
+          "format": "text",
+          "type": "string"
+        },
+        "brand": {
+          "format": "text",
+          "type": "string"
+        },
+        "variant": {
+          "format": "text",
+          "type": "string"
+        },
+        "purchase_price": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "selling_price": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "stock_quantity": {
+          "default": 0,
+          "format": "integer",
+          "type": "integer"
+        },
+        "low_stock_threshold": {
+          "default": 5,
+          "format": "integer",
+          "type": "integer"
+        },
+        "image_url": {
+          "format": "text",
+          "type": "string"
+        },
+        "notes": {
+          "format": "text",
+          "type": "string"
+        },
+        "is_active": {
+          "default": true,
+          "format": "boolean",
+          "type": "boolean"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "updated_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "deleted_at": {
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "format": "integer",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "invoice_items": {
+      "required": [
+        "id",
+        "invoice_id",
+        "shop_id",
+        "product_name",
+        "quantity",
+        "unit_price",
+        "unit_cost",
+        "line_total",
+        "created_at"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "invoice_id": {
+          "description": "Note:\nThis is a Foreign Key to `invoices.id`.<fk table='invoices' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "product_id": {
+          "description": "Note:\nThis is a Foreign Key to `products.id`.<fk table='products' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "product_name": {
+          "format": "text",
+          "type": "string"
+        },
+        "part_number": {
+          "format": "text",
+          "type": "string"
+        },
+        "quantity": {
+          "format": "integer",
+          "type": "integer"
+        },
+        "unit_price": {
+          "format": "numeric",
+          "type": "number"
+        },
+        "unit_cost": {
+          "default": 0,
+          "format": "numeric",
+          "type": "number"
+        },
+        "line_total": {
+          "format": "numeric",
+          "type": "number"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "profiles": {
+      "required": ["id", "shop_id", "full_name", "phone", "created_at", "updated_at"],
+      "properties": {
+        "id": {
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "full_name": {
+          "format": "text",
+          "type": "string"
+        },
+        "phone": {
+          "format": "text",
+          "type": "string"
+        },
+        "pin_hash": {
+          "format": "text",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "updated_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "idempotent_requests": {
+      "required": [
+        "idempotency_key",
+        "shop_id",
+        "operation_type",
+        "request_hash",
+        "processing_status",
+        "created_at"
+      ],
+      "properties": {
+        "idempotency_key": {
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "operation_type": {
+          "format": "character varying",
+          "maxLength": 50,
+          "type": "string"
+        },
+        "request_hash": {
+          "format": "character varying",
+          "maxLength": 64,
+          "type": "string"
+        },
+        "result_reference_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "processing_status": {
+          "default": "PENDING",
+          "format": "character varying",
+          "maxLength": 20,
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "suppliers": {
+      "required": ["id", "shop_id", "name", "created_at", "updated_at"],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "name": {
+          "format": "text",
+          "type": "string"
+        },
+        "mobile": {
+          "format": "text",
+          "type": "string"
+        },
+        "address": {
+          "format": "text",
+          "type": "string"
+        },
+        "notes": {
+          "format": "text",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "updated_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "inventory_movements": {
+      "required": ["id", "shop_id", "product_id", "movement_type", "quantity", "created_at"],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "product_id": {
+          "description": "Note:\nThis is a Foreign Key to `products.id`.<fk table='products' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "movement_type": {
+          "format": "character varying",
+          "maxLength": 50,
+          "type": "string"
+        },
+        "quantity": {
+          "format": "integer",
+          "type": "integer"
+        },
+        "reference_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ledger_transactions": {
+      "required": [
+        "id",
+        "shop_id",
+        "customer_id",
+        "transaction_type",
+        "amount",
+        "balance_impact",
+        "created_at"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "customer_id": {
+          "description": "Note:\nThis is a Foreign Key to `customers.id`.<fk table='customers' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "transaction_type": {
+          "format": "character varying",
+          "maxLength": 50,
+          "type": "string"
+        },
+        "amount": {
+          "format": "numeric",
+          "type": "number"
+        },
+        "balance_impact": {
+          "format": "numeric",
+          "type": "number"
+        },
+        "reference_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "parameters": {
+    "preferParams": {
+      "name": "Prefer",
+      "description": "Preference",
+      "required": false,
+      "in": "header",
+      "type": "string"
+    },
+    "preferReturn": {
+      "name": "Prefer",
+      "description": "Preference",
+      "required": false,
+      "enum": ["return=representation", "return=minimal", "return=none"],
+      "in": "header",
+      "type": "string"
+    },
+    "preferCount": {
+      "name": "Prefer",
+      "description": "Preference",
+      "required": false,
+      "enum": ["count=none"],
+      "in": "header",
+      "type": "string"
+    },
+    "preferPost": {
+      "name": "Prefer",
+      "description": "Preference",
+      "required": false,
+      "enum": [
+        "return=representation",
+        "return=minimal",
+        "return=none",
+        "resolution=ignore-duplicates",
+        "resolution=merge-duplicates"
+      ],
+      "in": "header",
+      "type": "string"
+    },
+    "select": {
+      "name": "select",
+      "description": "Filtering Columns",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "on_conflict": {
+      "name": "on_conflict",
+      "description": "On Conflict",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "order": {
+      "name": "order",
+      "description": "Ordering",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "range": {
+      "name": "Range",
+      "description": "Limiting and Pagination",
+      "required": false,
+      "in": "header",
+      "type": "string"
+    },
+    "rangeUnit": {
+      "name": "Range-Unit",
+      "description": "Limiting and Pagination",
+      "required": false,
+      "default": "items",
+      "in": "header",
+      "type": "string"
+    },
+    "offset": {
+      "name": "offset",
+      "description": "Limiting and Pagination",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "limit": {
+      "name": "limit",
+      "description": "Limiting and Pagination",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.invoices": {
+      "name": "invoices",
+      "description": "invoices",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/invoices"
+      }
+    },
+    "rowFilter.invoices.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.invoice_number": {
+      "name": "invoice_number",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.customer_id": {
+      "name": "customer_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.customer_name": {
+      "name": "customer_name",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.customer_mobile": {
+      "name": "customer_mobile",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.subtotal": {
+      "name": "subtotal",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.discount": {
+      "name": "discount",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.total": {
+      "name": "total",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.paid": {
+      "name": "paid",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.due": {
+      "name": "due",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.payment_status": {
+      "name": "payment_status",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.payment_method": {
+      "name": "payment_method",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.notes": {
+      "name": "notes",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.cost_total": {
+      "name": "cost_total",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.profit": {
+      "name": "profit",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.created_by": {
+      "name": "created_by",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.idempotency_key": {
+      "name": "idempotency_key",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.shop_name": {
+      "name": "shop_name",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.customer_name_snapshot": {
+      "name": "customer_name_snapshot",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoices.customer_mobile_snapshot": {
+      "name": "customer_mobile_snapshot",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.purchases": {
+      "name": "purchases",
+      "description": "purchases",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/purchases"
+      }
+    },
+    "rowFilter.purchases.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.supplier_id": {
+      "name": "supplier_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.supplier_name": {
+      "name": "supplier_name",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.bill_number": {
+      "name": "bill_number",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.bill_date": {
+      "name": "bill_date",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.subtotal": {
+      "name": "subtotal",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.discount": {
+      "name": "discount",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.total": {
+      "name": "total",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.paid": {
+      "name": "paid",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.due": {
+      "name": "due",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.payment_method": {
+      "name": "payment_method",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.notes": {
+      "name": "notes",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.created_by": {
+      "name": "created_by",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchases.updated_at": {
+      "name": "updated_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.purchase_items": {
+      "name": "purchase_items",
+      "description": "purchase_items",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/purchase_items"
+      }
+    },
+    "rowFilter.purchase_items.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchase_items.purchase_id": {
+      "name": "purchase_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchase_items.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchase_items.product_id": {
+      "name": "product_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchase_items.product_name": {
+      "name": "product_name",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchase_items.quantity": {
+      "name": "quantity",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchase_items.unit_cost": {
+      "name": "unit_cost",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchase_items.line_total": {
+      "name": "line_total",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.purchase_items.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.user_roles": {
+      "name": "user_roles",
+      "description": "user_roles",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/user_roles"
+      }
+    },
+    "rowFilter.user_roles.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.user_roles.user_id": {
+      "name": "user_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.user_roles.role": {
+      "name": "role",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.user_roles.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.ledger_entries": {
+      "name": "ledger_entries",
+      "description": "ledger_entries",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/ledger_entries"
+      }
+    },
+    "rowFilter.ledger_entries.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_entries.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_entries.customer_id": {
+      "name": "customer_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_entries.entry_type": {
+      "name": "entry_type",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_entries.amount": {
+      "name": "amount",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_entries.entry_date": {
+      "name": "entry_date",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_entries.note": {
+      "name": "note",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_entries.payment_method": {
+      "name": "payment_method",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_entries.created_by": {
+      "name": "created_by",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_entries.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_entries.updated_at": {
+      "name": "updated_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.customers": {
+      "name": "customers",
+      "description": "customers",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/customers"
+      }
+    },
+    "rowFilter.customers.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.customers.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.customers.name": {
+      "name": "name",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.customers.mobile": {
+      "name": "mobile",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.customers.vehicle_number": {
+      "name": "vehicle_number",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.customers.address": {
+      "name": "address",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.customers.notes": {
+      "name": "notes",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.customers.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.customers.updated_at": {
+      "name": "updated_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.customers.balance_cache": {
+      "name": "balance_cache",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.customers.deleted_at": {
+      "name": "deleted_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.customers.version": {
+      "name": "version",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.audit_log": {
+      "name": "audit_log",
+      "description": "audit_log",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/audit_log"
+      }
+    },
+    "rowFilter.audit_log.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.audit_log.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.audit_log.user_id": {
+      "name": "user_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.audit_log.action": {
+      "name": "action",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.audit_log.entity": {
+      "name": "entity",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.audit_log.entity_id": {
+      "name": "entity_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.audit_log.metadata": {
+      "name": "metadata",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.audit_log.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.payments": {
+      "name": "payments",
+      "description": "payments",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/payments"
+      }
+    },
+    "rowFilter.payments.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.customer_id": {
+      "name": "customer_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.amount": {
+      "name": "amount",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.payment_method": {
+      "name": "payment_method",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.reference_id": {
+      "name": "reference_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.idempotency_key": {
+      "name": "idempotency_key",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.products": {
+      "name": "products",
+      "description": "products",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/products"
+      }
+    },
+    "rowFilter.products.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.name": {
+      "name": "name",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.part_number": {
+      "name": "part_number",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.category": {
+      "name": "category",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.brand": {
+      "name": "brand",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.variant": {
+      "name": "variant",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.purchase_price": {
+      "name": "purchase_price",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.selling_price": {
+      "name": "selling_price",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.stock_quantity": {
+      "name": "stock_quantity",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.low_stock_threshold": {
+      "name": "low_stock_threshold",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.image_url": {
+      "name": "image_url",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.notes": {
+      "name": "notes",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.is_active": {
+      "name": "is_active",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.updated_at": {
+      "name": "updated_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.deleted_at": {
+      "name": "deleted_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.products.version": {
+      "name": "version",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.invoice_items": {
+      "name": "invoice_items",
+      "description": "invoice_items",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/invoice_items"
+      }
+    },
+    "rowFilter.invoice_items.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoice_items.invoice_id": {
+      "name": "invoice_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoice_items.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoice_items.product_id": {
+      "name": "product_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoice_items.product_name": {
+      "name": "product_name",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoice_items.part_number": {
+      "name": "part_number",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoice_items.quantity": {
+      "name": "quantity",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoice_items.unit_price": {
+      "name": "unit_price",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoice_items.unit_cost": {
+      "name": "unit_cost",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoice_items.line_total": {
+      "name": "line_total",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.invoice_items.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.profiles": {
+      "name": "profiles",
+      "description": "profiles",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/profiles"
+      }
+    },
+    "rowFilter.profiles.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.profiles.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.profiles.full_name": {
+      "name": "full_name",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.profiles.phone": {
+      "name": "phone",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.profiles.pin_hash": {
+      "name": "pin_hash",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.profiles.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.profiles.updated_at": {
+      "name": "updated_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.idempotent_requests": {
+      "name": "idempotent_requests",
+      "description": "idempotent_requests",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/idempotent_requests"
+      }
+    },
+    "rowFilter.idempotent_requests.idempotency_key": {
+      "name": "idempotency_key",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.idempotent_requests.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.idempotent_requests.operation_type": {
+      "name": "operation_type",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.idempotent_requests.request_hash": {
+      "name": "request_hash",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.idempotent_requests.result_reference_id": {
+      "name": "result_reference_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.idempotent_requests.processing_status": {
+      "name": "processing_status",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.idempotent_requests.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.suppliers": {
+      "name": "suppliers",
+      "description": "suppliers",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/suppliers"
+      }
+    },
+    "rowFilter.suppliers.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.suppliers.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.suppliers.name": {
+      "name": "name",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.suppliers.mobile": {
+      "name": "mobile",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.suppliers.address": {
+      "name": "address",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.suppliers.notes": {
+      "name": "notes",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.suppliers.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.suppliers.updated_at": {
+      "name": "updated_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.inventory_movements": {
+      "name": "inventory_movements",
+      "description": "inventory_movements",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/inventory_movements"
+      }
+    },
+    "rowFilter.inventory_movements.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.inventory_movements.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.inventory_movements.product_id": {
+      "name": "product_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.inventory_movements.movement_type": {
+      "name": "movement_type",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.inventory_movements.quantity": {
+      "name": "quantity",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.inventory_movements.reference_id": {
+      "name": "reference_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.inventory_movements.idempotency_key": {
+      "name": "idempotency_key",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.inventory_movements.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.ledger_transactions": {
+      "name": "ledger_transactions",
+      "description": "ledger_transactions",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/ledger_transactions"
+      }
+    },
+    "rowFilter.ledger_transactions.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_transactions.shop_id": {
+      "name": "shop_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_transactions.customer_id": {
+      "name": "customer_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_transactions.transaction_type": {
+      "name": "transaction_type",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_transactions.amount": {
+      "name": "amount",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_transactions.balance_impact": {
+      "name": "balance_impact",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_transactions.reference_id": {
+      "name": "reference_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_transactions.idempotency_key": {
+      "name": "idempotency_key",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.ledger_transactions.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    }
+  },
+  "externalDocs": {
+    "description": "PostgREST Documentation",
+    "url": "https://postgrest.org/en/v14/references/api.html"
+  }
+}

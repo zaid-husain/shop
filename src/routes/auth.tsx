@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth, phoneToEmail } from "@/lib/auth-context";
+import { useAuth } from "@/lib/auth-context";
+import { phoneToEmail } from "@/lib/utils";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,9 +17,16 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Sign in — Bharat Auto Parts" },
-      { name: "description", content: "Sign in to your auto parts shop with your mobile number and PIN to manage billing, stock, and customer Khata." },
+      {
+        name: "description",
+        content:
+          "Sign in to your auto parts shop with your mobile number and PIN to manage billing, stock, and customer Khata.",
+      },
       { property: "og:title", content: "Sign in — Bharat Auto Parts" },
-      { property: "og:description", content: "Sign in to manage billing, stock, and customer Khata for your auto parts shop." },
+      {
+        property: "og:description",
+        content: "Sign in to manage billing, stock, and customer Khata for your auto parts shop.",
+      },
       { property: "og:url", content: "/auth" },
     ],
     links: [{ rel: "canonical", href: "/auth" }],
@@ -55,7 +63,6 @@ function AuthPage() {
     if (typeof window !== "undefined") window.location.href = target;
     return null;
   }
-
 
   const phoneDigits = phone.replace(/\D/g, "");
   const phoneValid = phoneDigits.length === 10;
@@ -104,9 +111,10 @@ function AuthPage() {
         if (error) throw error;
         toast.success("Welcome back");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      const msg = String(err?.message ?? err);
+      const e = err as { message?: string };
+      const msg = String(e?.message ?? err);
       if (/invalid login/i.test(msg)) toast.error("Wrong mobile number or PIN");
       else if (/already registered|already exists/i.test(msg))
         toast.error("This mobile is already registered. Please sign in.");
@@ -144,9 +152,7 @@ function AuthPage() {
               type="button"
               onClick={() => setMode(m)}
               className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all ${
-                mode === m
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground"
+                mode === m ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
               {m === "signin" ? "Sign In" : "Create Shop"}

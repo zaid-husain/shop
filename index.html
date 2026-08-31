@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bharat Auto Parts - home</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-papNM3aHtNULcED0pFQ7w3Vk5U5zLGk4zz1s+LEfuFY5R/jqRraW5Fa9OjYl3fqF9FflbAA9Xc0jC7XQ8CE3Wg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <nav>
+      <div class="logo">Bharat Auto Parts</div>
+      <ul>
+        <li><a href="index.html" aria-current="page">Home</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+
+    <!-- Add inside the <body> in index.html, after the hero -->
+
+    <header class="hero container">
+      <h1>Welcome to Bharat Auto Parts</h1>
+      <p>
+        Explore our handpicked selection of the latest smartphones and tech accessories—designed for
+        your digital life.
+      </p>
+      <a href="shop.html" class="btn">Shop Now</a>
+
+      <!-- Search bar -->
+      <div style="margin-top: 2rem; max-width: 400px; margin-left: auto; margin-right: auto">
+        <input
+          type="search"
+          id="home-search"
+          placeholder="Search products..."
+          style="
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 30px;
+            border: none;
+            font-size: 1rem;
+          "
+          aria-label="Search products"
+        />
+      </div>
+    </header>
+
+    <section class="container" style="margin-top: 2rem">
+      <h2>Special Offers</h2>
+
+      <div
+        class="ads-container"
+        style="display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center"
+      >
+        <div
+          class="ad-banner"
+          style="
+            background: var(--soft-green);
+            color: var(--dark-bg);
+            padding: 1rem;
+            border-radius: 12px;
+            flex: 1 1 300px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+          "
+        >
+          <h3>🔥 Mega Mobile Sale - Up to 50% Off!</h3>
+          <p>
+            Grab your favorite smartphones and accessories at unbeatable prices. Limited time only!
+          </p>
+          <a href="shop.html" class="btn" style="margin-top: 0.5rem; display: inline-block"
+            >Shop Sale</a
+          >
+        </div>
+        <div
+          class="ad-banner"
+          style="
+            background: var(--soft-green);
+            color: var(--dark-bg);
+            padding: 1rem;
+            border-radius: 12px;
+            flex: 1 1 300px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+          "
+        >
+          <h3>📱 New Launches</h3>
+          <p>Discover the latest smartphones and tech gear freshly launched this season.</p>
+          <a href="shop.html" class="btn" style="margin-top: 0.5rem; display: inline-block"
+            >Explore Now</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <section class="container" style="margin-top: 3rem">
+      <h2>Featured Products</h2>
+      <div class="featured-products" id="featured-products">
+        <!-- Product cards dynamically updated by JS -->
+      </div>
+    </section>
+
+    <script>
+      const products = [
+        {
+          id: 1,
+          name: "iPhone 14 Pro",
+          category: "smartphones",
+          description: "Apple's latest powerhouse with advanced camera features.",
+          price: 999.99,
+          img: "img/iphone14pro.jpg",
+        },
+        {
+          id: 2,
+          name: "Samsung Galaxy S24",
+          category: "smartphones",
+          description: "Flagship Android phone with a stunning AMOLED display.",
+          price: 899.99,
+          img: "img/galaxys24.jpg",
+        },
+        {
+          id: 3,
+          name: "OnePlus 12",
+          category: "smartphones",
+          description: "Speed and style packed into a powerful flagship.",
+          price: 749.99,
+          img: "img/oneplus12.jpg",
+        },
+        {
+          id: 4,
+          name: "AirPods Pro",
+          category: "accessories",
+          description: "Wireless earbuds with active noise cancellation.",
+          price: 249.99,
+          img: "img/airpodspro.jpg",
+        },
+        {
+          id: 5,
+          name: "Wireless Charger Pad",
+          category: "accessories",
+          description: "Fast wireless charging for compatible devices.",
+          price: 39.99,
+          img: "img/chargerpad.jpg",
+        },
+        {
+          id: 6,
+          name: "Phone Case - Galaxy S24",
+          category: "accessories",
+          description: "Protective and stylish case for your Galaxy S24.",
+          price: 19.99,
+          img: "img/galaxycase.jpg",
+        },
+      ];
+
+      const featuredProductsEl = document.getElementById("featured-products");
+      const homeSearch = document.getElementById("home-search");
+
+      function displayFeaturedProducts(filterText = "") {
+        featuredProductsEl.innerHTML = "";
+        const filtered = products.filter((p) =>
+          p.name.toLowerCase().includes(filterText.toLowerCase()),
+        );
+
+        if (filtered.length === 0) {
+          featuredProductsEl.innerHTML = "<p>No products found.</p>";
+          return;
+        }
+
+        filtered.forEach((product) => {
+          const productCard = document.createElement("div");
+          productCard.className = "product-card";
+          productCard.innerHTML = `
+        <img src="${product.img}" alt="${product.name}" />
+        <h3>${product.name}</h3>
+        <p>${product.description}</p>
+        <a href="product.html?id=${product.id}" class="btn">View Details</a>
+      `;
+          featuredProductsEl.appendChild(productCard);
+        });
+      }
+
+      homeSearch.addEventListener("input", (e) => {
+        displayFeaturedProducts(e.target.value);
+      });
+
+      // Initial load
+      displayFeaturedProducts();
+    </script>
+
+    <footer>&copy; 2025 MobiNest. All rights reserved.</footer>
+  </body>
+</html>

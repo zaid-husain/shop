@@ -3,7 +3,7 @@ import { sb, type Profile } from "@/lib/db";
 import type { Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
-type Role = "owner" | "staff" | null;
+type Role = "owner" | "manager" | "staff" | null;
 
 interface AuthCtx {
   loading: boolean;
@@ -25,7 +25,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function loadProfile(uid: string) {
     const [{ data: prof }, { data: roles }] = await Promise.all([
-      sb.from("profiles").select("id, shop_id, full_name, phone, created_at, updated_at").eq("id", uid).maybeSingle(),
+      sb
+        .from("profiles")
+        .select("id, shop_id, full_name, phone, created_at, updated_at")
+        .eq("id", uid)
+        .maybeSingle(),
       sb.from("user_roles").select("role").eq("user_id", uid),
     ]);
     setProfile((prof as Profile | null) ?? null);
@@ -73,15 +77,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const v = useContext(Ctx);
   if (!v) throw new Error("useAuth must be used inside AuthProvider");
   return v;
-}
-
-// Convert a 10-digit Indian phone + PIN into the email/password the auth
-// service expects. Internal only — never exposed to the user.
-export function phoneToEmail(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  return `bap-${digits}@bharatautoparts.app`;
 }

@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { defineTool, type ToolContext } from "@lovable.dev/mcp-js";
 import { z } from "zod";
+import { CustomerService } from "@/lib/domain/CustomerService";
 
 function sbForUser(ctx: ToolContext) {
   return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
@@ -28,18 +29,30 @@ export default defineTool({
     if (!ctx.isAuthenticated())
       return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
 
-    let q = sbForUser(ctx)
-      .from("customers")
-      .select("id, name, mobile, vehicle_number, address, created_at")
-      .order("created_at", { ascending: false })
-      .limit(limit);
-    if (search) q = q.or(`name.ilike.%${search}%,mobile.ilike.%${search}%`);
+    const sb = sbForUser(ctx);
+    const { data: profile, error: profileError } = await sb
+      .from("profiles")
+      .select("shop_id")
+      .single();
 
-    const { data, error } = await q;
-    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
-    return {
-      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-      structuredContent: { customers: data ?? [] },
-    };
+    if (profileError || !profile?.shop_id) {
+      return { content: [{ type: "text", text: "Shop not found" }], isError: true };
+    }
+
+    try {
+      let customers = await CustomerService.searchCustomers(profile.shop_id, search || "", sb);
+      if (limit && limit > 0) {
+        customers = customers.slice(0, limit);
+      }
+      return {
+        content: [{ type: "text", text: JSON.stringify(customers, null, 2) }],
+        structuredContent: { customers },
+      };
+    } catch (e: unknown) {
+      return {
+        content: [{ type: "text", text: e instanceof Error ? e.message : String(e) }],
+        isError: true,
+      };
+    }
   },
 });

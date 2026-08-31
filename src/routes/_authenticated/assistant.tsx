@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute } from "@tanstack/react-router";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
@@ -9,21 +10,64 @@ import { toast } from "sonner";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  CreateProductForm,
+  UpdateProductForm,
+  DeleteProductCard,
+  StockAdjustmentForm,
+} from "@/components/ui/../ai-elements/ProductForms";
+import {
+  CreateCustomerForm,
+  UpdateCustomerForm,
+  DeleteCustomerCard,
+  KhataEntryForm,
+} from "@/components/ui/../ai-elements/CustomerForms";
 
 export const Route = createFileRoute("/_authenticated/assistant")({
-  head: () => ({ meta: [
-    { title: "AI Assistant — Bharat Auto Parts" },
-    { name: "description", content: "Ask the AI shop assistant questions about billing, inventory, and managing your auto parts business." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "AI Assistant — Bharat Auto Parts" },
+      {
+        name: "description",
+        content:
+          "Ask the AI shop assistant questions about billing, inventory, and managing your auto parts business.",
+      },
+    ],
+  }),
   component: AssistantPage,
 });
 
 const SUGGESTIONS = [
-  "How do I create a bill?",
-  "Add a new product to stock",
-  "Today's sales summary",
-  "Send invoice on WhatsApp",
+  "Servo oil ki price?",
+  "Low stock items dikhao",
+  "Aaj ki sale kitni hui?",
+  "Top selling products",
 ];
+
+function parseMessageText(rawText: string) {
+  // Backwards compatibility for preview_card
+  let match = rawText.match(/:::preview_card\n([\s\S]*?)\n:::/);
+  if (match) {
+    try {
+      const data = JSON.parse(match[1]);
+      return { text: rawText.replace(match[0], "").trim(), actionCard: data };
+    } catch {
+      return { text: rawText, actionCard: null };
+    }
+  }
+
+  // New action_card logic
+  match = rawText.match(/:::action_card\n([\s\S]*?)\n:::/);
+  if (match) {
+    try {
+      const data = JSON.parse(match[1]);
+      return { text: rawText.replace(match[0], "").trim(), actionCard: data };
+    } catch {
+      return { text: rawText, actionCard: null };
+    }
+  }
+  return { text: rawText, actionCard: null };
+}
 
 function AssistantPage() {
   const initial = useMemo<UIMessage[]>(
@@ -34,8 +78,7 @@ function AssistantPage() {
         parts: [
           {
             type: "text",
-            text:
-              "Namaste! 👋 I'm your AI shop assistant. Ask me anything about using Bharat Auto Parts or running your shop. You can also tap the mic to speak.",
+            text: "Namaste! 👋 I'm your AI shop assistant. Ask me anything about using Bharat Auto Parts or running your shop. You can also tap the mic to speak.",
           },
         ],
       } as UIMessage,
@@ -55,12 +98,35 @@ function AssistantPage() {
       }),
     [],
   );
-  const { messages, sendMessage, status, error } = useChat({
+  const { messages, sendMessage, status, error, setMessages, stop } = useChat({
     id: "assistant",
     messages: initial,
     transport,
-    onError: (e) => toast.error(e.message),
+    onError: (e) => {
+      toast.error(e.message);
+      // Remove the hanging "submitted" or empty message if it failed
+      setMessages((prev) =>
+        prev.filter((m) => m.parts.some((p) => p.type === "text" && (p as { text?: string }).text)),
+      );
+    },
   });
+
+  // Timeout watchdog for stuck requests
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (status === "submitted") {
+      timeout = setTimeout(() => {
+        stop(); // Safely abort using Vercel AI SDK
+        toast.error("The AI Assistant took too long to respond. Please try again.");
+        setMessages((prev) =>
+          prev.filter((m) =>
+            m.parts.some((p) => p.type === "text" && (p as { text?: string }).text),
+          ),
+        );
+      }, 15000);
+    }
+    return () => clearTimeout(timeout);
+  }, [status, setMessages, stop]);
 
   const [input, setInput] = useState("");
   const [listening, setListening] = useState(false);
@@ -80,10 +146,17 @@ function AssistantPage() {
     if (status === "streaming") return;
     const last = messages[messages.length - 1];
     if (!last || last.role !== "assistant" || last.id === lastSpokenIdRef.current) return;
-    const text = last.parts.map((p: any) => (p.type === "text" ? p.text : "")).join(" ").trim();
+    const text = last.parts
+      .map((p: { type: string; text?: string }) => (p.type === "text" ? p.text : ""))
+      .join(" ")
+      .trim();
     if (!text) return;
+
+    const parsed = parseMessageText(text);
+    const textToSpeak = parsed.text || "Action confirmation pending.";
+
     lastSpokenIdRef.current = last.id;
-    const u = new SpeechSynthesisUtterance(text);
+    const u = new SpeechSynthesisUtterance(textToSpeak);
     u.lang = "en-IN";
     u.rate = 1;
     window.speechSynthesis.cancel();
@@ -99,8 +172,7 @@ function AssistantPage() {
 
   function toggleMic() {
     if (typeof window === "undefined") return;
-    const SR =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) {
       toast.error("Voice input is not supported on this browser. Try Chrome on Android.");
       return;
@@ -144,7 +216,7 @@ function AssistantPage() {
   const busy = status === "submitted" || status === "streaming";
 
   return (
-    <div className="flex flex-col h-[100dvh] pb-20">
+    <div className="flex flex-col h-[calc(100dvh-4rem)]">
       <ScreenHeader
         title="AI Assistant"
         subtitle="Ask anything about your shop"
@@ -164,14 +236,21 @@ function AssistantPage() {
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         <AnimatePresence initial={false}>
           {messages.map((m) => {
-            const text = m.parts.map((p: any) => (p.type === "text" ? p.text : "")).join("");
+            const rawText = m.parts
+              .map((p: { type: string; text?: string }) => (p.type === "text" ? p.text : ""))
+              .join("");
             const isUser = m.role === "user";
+
+            const { text, actionCard } = isUser
+              ? { text: rawText, actionCard: null }
+              : parseMessageText(rawText);
+
             return (
               <motion.div
                 key={m.id}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+                className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
               >
                 <div
                   className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm whitespace-pre-wrap shadow-card ${
@@ -185,8 +264,110 @@ function AssistantPage() {
                       <Sparkles size={10} /> Assistant
                     </div>
                   )}
-                  {text || (busy && m.role === "assistant" ? "…" : "")}
+                  {text ||
+                    (busy && m.role === "assistant" && m.id === messages[messages.length - 1].id
+                      ? "…"
+                      : "")}
                 </div>
+                {actionCard && (
+                  <div className="mt-2 w-full max-w-md">
+                    {actionCard.type === "CREATE_PRODUCT" && (
+                      <CreateProductForm payload={actionCard.payload} onComplete={() => {}} />
+                    )}
+                    {actionCard.type === "UPDATE_PRODUCT" && (
+                      <UpdateProductForm payload={actionCard.payload} onComplete={() => {}} />
+                    )}
+                    {actionCard.type === "DELETE_PRODUCT" && (
+                      <DeleteProductCard payload={actionCard.payload} onComplete={() => {}} />
+                    )}
+                    {(actionCard.type === "UPDATE_STOCK" || actionCard.type === "STOCK_REDUCE") && (
+                      <StockAdjustmentForm payload={actionCard.payload} onComplete={() => {}} />
+                    )}
+                    {actionCard.type === "CREATE_CUSTOMER" && (
+                      <CreateCustomerForm payload={actionCard.payload} onComplete={() => {}} />
+                    )}
+                    {actionCard.type === "UPDATE_CUSTOMER" && (
+                      <UpdateCustomerForm payload={actionCard.payload} onComplete={() => {}} />
+                    )}
+                    {actionCard.type === "DELETE_CUSTOMER" && (
+                      <DeleteCustomerCard payload={actionCard.payload} onComplete={() => {}} />
+                    )}
+                    {(actionCard.type === "PAYMENT_CREATE" ||
+                      actionCard.type === "CREDIT_CREATE" ||
+                      actionCard.type === "DEBIT_CREATE") && (
+                      <KhataEntryForm
+                        payload={actionCard.payload}
+                        intentType={actionCard.type}
+                        onComplete={() => {}}
+                      />
+                    )}
+                    {actionCard.type === "MULTIPLE_MATCHES" && (
+                      <div className="bg-card text-card-foreground p-4 rounded-2xl rounded-bl-sm shadow-card border border-border">
+                        <div className="font-bold text-sm mb-3 text-primary">
+                          Select {actionCard.payload.intent.replace(/_/g, " ")} Target
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          {actionCard.payload.matches.map((m: any) => (
+                            <Button
+                              key={m.id}
+                              variant="outline"
+                              className="justify-start text-left h-auto py-2"
+                              onClick={() =>
+                                send(
+                                  `${m.name} ${actionCard.payload.intent.toLowerCase().replace(/_/g, " ")}`,
+                                )
+                              }
+                            >
+                              <div>
+                                <div className="font-semibold">{m.name}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {m.mobile || `₹${m.selling_price || 0}`}
+                                </div>
+                              </div>
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {/* Fallback for unhandled forms */}
+                    {![
+                      "CREATE_PRODUCT",
+                      "UPDATE_PRODUCT",
+                      "DELETE_PRODUCT",
+                      "UPDATE_STOCK",
+                      "STOCK_REDUCE",
+                      "CREATE_CUSTOMER",
+                      "UPDATE_CUSTOMER",
+                      "DELETE_CUSTOMER",
+                      "PAYMENT_CREATE",
+                      "CREDIT_CREATE",
+                      "DEBIT_CREATE",
+                      "MULTIPLE_MATCHES",
+                    ].includes(actionCard.type) && (
+                      <div className="bg-card text-card-foreground p-3 rounded-2xl rounded-bl-sm shadow-card border border-border">
+                        <div className="font-bold text-sm mb-2 text-primary">
+                          {actionCard.type.replace(/_/g, " ")}
+                        </div>
+                        <div className="text-sm whitespace-pre-wrap text-muted-foreground">
+                          {actionCard.description}
+                        </div>
+                        <div className="mt-3 flex gap-2">
+                          <Button size="sm" onClick={() => send("yes")} className="flex-1">
+                            Confirm
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => send("no")}
+                            className="flex-1"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </motion.div>
             );
           })}
@@ -215,7 +396,10 @@ function AssistantPage() {
       )}
 
       <form
-        onSubmit={(e) => { e.preventDefault(); send(input); }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          send(input);
+        }}
         className="px-3 py-2 border-t border-border bg-card flex items-end gap-2"
       >
         <Button

@@ -2,24 +2,34 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowLeft, Download, TrendingUp, TrendingDown, IndianRupee, Users, ChevronRight, MessageCircle, Truck,
+  ArrowLeft,
+  Download,
+  TrendingUp,
+  TrendingDown,
+  IndianRupee,
+  Users,
+  ChevronRight,
+  MessageCircle,
+  Truck,
 } from "lucide-react";
-import {
-  BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid,
-} from "recharts";
-import { sb, type Customer, type LedgerEntry } from "@/lib/db";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
+import { sb, type Customer, type LedgerEntry, type LedgerTransaction } from "@/lib/db";
 import { useAuth } from "@/lib/auth-context";
 import { formatINR, formatDate, buildWhatsAppUrl } from "@/lib/format";
 import { Button } from "@/components/ui/button";
-import {
-  Tabs, TabsList, TabsTrigger, TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/reports")({
-  head: () => ({ meta: [
-    { title: "Reports — Bharat Auto Parts" },
-    { name: "description", content: "Outstanding dues, collections, and top-customer reports for your auto parts shop." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Reports — Bharat Auto Parts" },
+      {
+        name: "description",
+        content:
+          "Outstanding dues, collections, and top-customer reports for your auto parts shop.",
+      },
+    ],
+  }),
   component: ReportsPage,
 });
 
@@ -54,7 +64,6 @@ function ReportsPage() {
     },
   });
 
-
   const { data, isLoading } = useQuery({
     queryKey: ["reports", profile?.shop_id, range],
     enabled: !!profile?.shop_id,
@@ -63,12 +72,12 @@ function ReportsPage() {
       since.setDate(since.getDate() - parseInt(range));
       const [custRes, ledgerRes] = await Promise.all([
         sb.from("customers").select("*"),
-        sb.from("ledger_entries").select("*"),
+        sb.from("ledger_transactions").select("*"),
       ]);
       if (custRes.error) throw custRes.error;
       if (ledgerRes.error) throw ledgerRes.error;
       const customers = (custRes.data ?? []) as Customer[];
-      const entries = (ledgerRes.data ?? []) as LedgerEntry[];
+      const entries = (ledgerRes.data ?? []) as LedgerTransaction[];
 
       const map = new Map<string, Row>();
       for (const c of customers)
@@ -76,19 +85,15 @@ function ReportsPage() {
       for (const e of entries) {
         const r = map.get(e.customer_id);
         if (!r) continue;
-        if (e.entry_type === "credit") r.credit += Number(e.amount);
+        if (e.balance_impact > 0) r.credit += Number(e.amount);
         else r.payment += Number(e.amount);
         if (!r.last_at || e.created_at > r.last_at) r.last_at = e.created_at;
       }
       for (const r of map.values()) r.balance = r.credit - r.payment;
 
       const rows = Array.from(map.values());
-      const outstanding = rows
-        .filter((r) => r.balance > 0)
-        .sort((a, b) => b.balance - a.balance);
-      const advance = rows
-        .filter((r) => r.balance < 0)
-        .sort((a, b) => a.balance - b.balance);
+      const outstanding = rows.filter((r) => r.balance > 0).sort((a, b) => b.balance - a.balance);
+      const advance = rows.filter((r) => r.balance < 0).sort((a, b) => a.balance - b.balance);
 
       // monthly collection chart
       const months: { key: string; label: string; credit: number; payment: number }[] = [];
@@ -105,10 +110,10 @@ function ReportsPage() {
         });
       }
       for (const e of entries) {
-        const key = e.entry_date.slice(0, 7);
+        const key = e.created_at.slice(0, 7);
         const m = months.find((x) => x.key === key);
         if (!m) continue;
-        if (e.entry_type === "credit") m.credit += Number(e.amount);
+        if (e.balance_impact > 0) m.credit += Number(e.amount);
         else m.payment += Number(e.amount);
       }
 
@@ -132,15 +137,17 @@ function ReportsPage() {
     const header = ["Name", "Mobile", "Vehicle", "Credit", "Received", "Balance", "Last Activity"];
     const lines = [header.join(",")];
     for (const r of data.outstanding) {
-      lines.push([
-        csv(r.name),
-        csv(r.mobile ?? ""),
-        csv(r.vehicle_number ?? ""),
-        r.credit.toFixed(2),
-        r.payment.toFixed(2),
-        r.balance.toFixed(2),
-        r.last_at ? formatDate(r.last_at) : "—",
-      ].join(","));
+      lines.push(
+        [
+          csv(r.name),
+          csv(r.mobile ?? ""),
+          csv(r.vehicle_number ?? ""),
+          r.credit.toFixed(2),
+          r.payment.toFixed(2),
+          r.balance.toFixed(2),
+          r.last_at ? formatDate(r.last_at) : "—",
+        ].join(","),
+      );
     }
     return lines.join("\n");
   }, [data]);
@@ -168,12 +175,18 @@ function ReportsPage() {
           </button>
           <select
             value={range}
-            onChange={(e) => setRange(e.target.value as any)}
+            onChange={(e) => setRange(e.target.value as "30" | "90" | "365")}
             className="bg-white/15 text-xs font-semibold px-3 py-1.5 rounded-full border-0 outline-none"
           >
-            <option className="text-foreground" value="30">Last 30 days</option>
-            <option className="text-foreground" value="90">Last 90 days</option>
-            <option className="text-foreground" value="365">Last 12 months</option>
+            <option className="text-foreground" value="30">
+              Last 30 days
+            </option>
+            <option className="text-foreground" value="90">
+              Last 90 days
+            </option>
+            <option className="text-foreground" value="365">
+              Last 12 months
+            </option>
           </select>
         </div>
         <div className="mt-3">
@@ -222,7 +235,6 @@ function ReportsPage() {
         </div>
       </div>
 
-
       <div className="px-4 mt-4">
         <Tabs defaultValue="outstanding">
           <TabsList className="w-full grid grid-cols-3">
@@ -245,7 +257,9 @@ function ReportsPage() {
                 <Download size={14} /> CSV
               </Button>
             </div>
-            {isLoading && <div className="text-center text-sm text-muted-foreground py-6">Loading…</div>}
+            {isLoading && (
+              <div className="text-center text-sm text-muted-foreground py-6">Loading…</div>
+            )}
             {data?.outstanding.length === 0 && (
               <div className="rounded-2xl bg-card shadow-card p-10 text-center text-sm text-muted-foreground">
                 🎉 No outstanding balances. All clear!
@@ -255,7 +269,7 @@ function ReportsPage() {
               {data?.outstanding.map((r) => (
                 <Link
                   key={r.id}
-                  to="/customers/$id"
+                  to="/khata/$id"
                   params={{ id: r.id }}
                   className="flex items-center gap-3 rounded-2xl bg-card shadow-card px-4 py-3"
                 >
@@ -301,15 +315,24 @@ function ReportsPage() {
                     Monthly Credit vs Collection
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
-                    Credit: {formatINR(data?.monthCredit ?? 0)} · Collected: {formatINR(data?.monthPayment ?? 0)}
+                    Credit: {formatINR(data?.monthCredit ?? 0)} · Collected:{" "}
+                    {formatINR(data?.monthPayment ?? 0)}
                   </div>
                 </div>
               </div>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={data?.months ?? []}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                    <XAxis dataKey="label" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 11 }}
+                      stroke="hsl(var(--muted-foreground))"
+                    />
                     <YAxis
                       tick={{ fontSize: 10 }}
                       stroke="hsl(var(--muted-foreground))"
@@ -322,25 +345,35 @@ function ReportsPage() {
                         borderRadius: 12,
                         fontSize: 12,
                       }}
-                      formatter={(v: any) => formatINR(Number(v))}
+                      formatter={(v: unknown) => formatINR(Number(v))}
                     />
-                    <Bar dataKey="credit" fill="hsl(var(--destructive))" radius={[6, 6, 0, 0]} name="Credit" />
+                    <Bar
+                      dataKey="credit"
+                      fill="hsl(var(--destructive))"
+                      radius={[6, 6, 0, 0]}
+                      name="Credit"
+                    />
                     <Bar dataKey="payment" fill="#10b981" radius={[6, 6, 0, 0]} name="Collected" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
             <div className="rounded-2xl bg-card shadow-card divide-y divide-border overflow-hidden">
-              {data?.months.slice().reverse().map((m) => (
-                <div key={m.key} className="flex items-center justify-between px-4 py-3">
-                  <div className="text-sm font-semibold">{m.label}</div>
-                  <div className="text-right text-xs">
-                    <span className="text-destructive font-semibold">+{formatINR(m.credit)}</span>
-                    <span className="text-muted-foreground mx-2">/</span>
-                    <span className="text-emerald-700 dark:text-emerald-400 font-semibold">−{formatINR(m.payment)}</span>
+              {data?.months
+                .slice()
+                .reverse()
+                .map((m) => (
+                  <div key={m.key} className="flex items-center justify-between px-4 py-3">
+                    <div className="text-sm font-semibold">{m.label}</div>
+                    <div className="text-right text-xs">
+                      <span className="text-destructive font-semibold">+{formatINR(m.credit)}</span>
+                      <span className="text-muted-foreground mx-2">/</span>
+                      <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
+                        −{formatINR(m.payment)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </TabsContent>
 
@@ -350,12 +383,12 @@ function ReportsPage() {
             </div>
             {data?.rows
               .slice()
-              .sort((a, b) => (b.credit + b.payment) - (a.credit + a.payment))
+              .sort((a, b) => b.credit + b.payment - (a.credit + a.payment))
               .slice(0, 10)
               .map((r, i) => (
                 <Link
                   key={r.id}
-                  to="/customers/$id"
+                  to="/khata/$id"
                   params={{ id: r.id }}
                   className="flex items-center gap-3 rounded-2xl bg-card shadow-card px-4 py-3"
                 >
@@ -370,9 +403,13 @@ function ReportsPage() {
                   </div>
                   <div className="text-right shrink-0">
                     {r.balance > 0 ? (
-                      <span className="text-xs font-bold text-destructive">Due {formatINR(r.balance)}</span>
+                      <span className="text-xs font-bold text-destructive">
+                        Due {formatINR(r.balance)}
+                      </span>
                     ) : r.balance < 0 ? (
-                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">Adv {formatINR(-r.balance)}</span>
+                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                        Adv {formatINR(-r.balance)}
+                      </span>
                     ) : (
                       <Users size={14} className="text-muted-foreground" />
                     )}
@@ -389,7 +426,6 @@ function ReportsPage() {
 }
 
 function csv(s: string) {
-  if (s.includes(",") || s.includes('"') || s.includes("\n"))
-    return `"${s.replace(/"/g, '""')}"`;
+  if (s.includes(",") || s.includes('"') || s.includes("\n")) return `"${s.replace(/"/g, '""')}"`;
   return s;
 }

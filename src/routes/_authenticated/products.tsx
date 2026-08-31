@@ -11,12 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
   Select,
   SelectContent,
@@ -25,13 +20,37 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+function capitalize(str: string) {
+  return str
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function getProductTitle(brand?: string | null, name?: string | null) {
+  const b = (brand || "").trim();
+  const n = (name || "").trim();
+  if (b && n) return capitalize(`${b} ${n}`);
+  if (n) return capitalize(n);
+  if (b) return capitalize(b);
+  return "Unknown Product";
+}
+
 export const Route = createFileRoute("/_authenticated/products")({
   head: () => ({
     meta: [
       { title: "Inventory Management — Bharat Auto Parts" },
-      { name: "description", content: "Manage your spare parts stock, prices, brands, and low-stock alerts in one place." },
+      {
+        name: "description",
+        content:
+          "Manage your spare parts stock, prices, brands, and low-stock alerts in one place.",
+      },
       { property: "og:title", content: "Inventory Management — Bharat Auto Parts" },
-      { property: "og:description", content: "Track spare parts stock, update prices, organise brands, and get low-stock alerts for your auto parts shop." },
+      {
+        property: "og:description",
+        content:
+          "Track spare parts stock, update prices, organise brands, and get low-stock alerts for your auto parts shop.",
+      },
       { property: "og:url", content: "/products" },
     ],
     links: [{ rel: "canonical", href: "/products" }],
@@ -40,7 +59,8 @@ export const Route = createFileRoute("/_authenticated/products")({
 });
 
 function ProductsPage() {
-  const { profile } = useAuth();
+  const { profile, role } = useAuth();
+  const canEdit = role === "owner" || role === "manager";
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Product | null>(null);
@@ -61,13 +81,14 @@ function ProductsPage() {
   });
 
   const filtered = (products ?? []).filter((p) => {
-    const q = search.toLowerCase();
-    return (
-      !q ||
-      p.name.toLowerCase().includes(q) ||
-      (p.part_number ?? "").toLowerCase().includes(q) ||
-      (p.brand ?? "").toLowerCase().includes(q)
-    );
+    const q = search.toLowerCase().trim();
+    if (!q) return true;
+
+    const searchTerms = q.split(/\s+/);
+    const productString =
+      `${p.brand ?? ""} ${p.name} ${p.part_number ?? ""} ${p.category ?? ""}`.toLowerCase();
+
+    return searchTerms.every((term) => productString.includes(term));
   });
 
   function openNew() {
@@ -85,14 +106,11 @@ function ProductsPage() {
         title="Inventory"
         subtitle={`${products?.length ?? 0} products`}
         right={
-          <Button
-            size="icon-sm"
-            variant="amber"
-            onClick={openNew}
-            aria-label="Add product"
-          >
-            <Plus size={18} />
-          </Button>
+          canEdit ? (
+            <Button size="icon-sm" variant="amber" onClick={openNew} aria-label="Add product">
+              <Plus size={18} />
+            </Button>
+          ) : null
         }
       />
 
@@ -111,31 +129,36 @@ function ProductsPage() {
           <div className="text-center text-sm text-muted-foreground py-8">Loading…</div>
         )}
         {!isLoading && filtered.length === 0 && (
-          <EmptyState onAdd={openNew} hasSearch={!!search} />
+          <EmptyState onAdd={openNew} hasSearch={!!search} canEdit={canEdit} />
         )}
         {filtered.map((p) => {
           const low = p.stock_quantity <= (p.low_stock_threshold ?? 5);
           return (
             <button
               key={p.id}
-              onClick={() => openEdit(p)}
+              onClick={() => canEdit && openEdit(p)}
               className="w-full text-left rounded-2xl bg-card shadow-card p-4 flex justify-between items-center"
             >
               <div className="min-w-0 flex-1">
-                <div className="font-semibold text-sm truncate">{p.name}</div>
+                <div className="font-semibold text-sm truncate">
+                  {getProductTitle(p.brand, p.name)}
+                </div>
                 <div className="text-xs text-muted-foreground truncate">
-                  {[p.brand, p.part_number, p.category].filter(Boolean).join(" · ")}
+                  {[p.part_number, p.category].filter(Boolean).join(" · ")}
                 </div>
                 <div className="mt-1 text-xs">
-                  <span className="font-bold text-foreground">{formatINR(Number(p.selling_price))}</span>
-                  <span className="text-muted-foreground"> · cost {formatINR(Number(p.purchase_price))}</span>
+                  <span className="font-bold text-foreground">
+                    {formatINR(Number(p.selling_price))}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {" "}
+                    · cost {formatINR(Number(p.purchase_price))}
+                  </span>
                 </div>
               </div>
               <div className="text-right">
                 <div
-                  className={`text-base font-bold ${
-                    low ? "text-destructive" : "text-foreground"
-                  }`}
+                  className={`text-base font-bold ${low ? "text-destructive" : "text-foreground"}`}
                 >
                   {p.stock_quantity}
                 </div>
@@ -166,13 +189,21 @@ function ProductsPage() {
   );
 }
 
-function EmptyState({ onAdd, hasSearch }: { onAdd: () => void; hasSearch: boolean }) {
+function EmptyState({
+  onAdd,
+  hasSearch,
+  canEdit,
+}: {
+  onAdd: () => void;
+  hasSearch: boolean;
+  canEdit: boolean;
+}) {
   return (
     <div className="text-center py-16">
       <div className="text-sm text-muted-foreground mb-4">
         {hasSearch ? "No products match your search" : "No products yet"}
       </div>
-      {!hasSearch && (
+      {!hasSearch && canEdit && (
         <Button onClick={onAdd} variant="hero">
           <Plus size={16} /> Add your first product
         </Button>
@@ -192,9 +223,22 @@ function ProductSheet({
   initial: Product | null;
   onSaved: () => void;
 }) {
-  const { profile } = useAuth();
+  const { profile, role } = useAuth();
+  const canEdit = role === "owner" || role === "manager";
+  const canDelete = role === "owner";
   const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState<any>(() => ({
+  const [form, setForm] = useState<{
+    _id?: string;
+    name: string;
+    part_number: string;
+    brand: string;
+    category: string;
+    purchase_price: string;
+    selling_price: string;
+    stock_quantity: string;
+    low_stock_threshold: string;
+    notes: string;
+  }>(() => ({
     name: "",
     part_number: "",
     brand: "",
@@ -266,11 +310,10 @@ function ProductSheet({
       }
       onSaved();
       onOpenChange(false);
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e);
       toast.error("Something went wrong. Please try again.");
     } finally {
-
       setBusy(false);
     }
   }
@@ -281,7 +324,10 @@ function ProductSheet({
     setBusy(true);
     const { error } = await sb.from("products").update({ is_active: false }).eq("id", initial.id);
     setBusy(false);
-    if (error) { console.error(error); return toast.error("Something went wrong. Please try again."); }
+    if (error) {
+      console.error(error);
+      return toast.error("Something went wrong. Please try again.");
+    }
     toast.success("Product removed");
     onSaved();
     onOpenChange(false);
@@ -321,14 +367,15 @@ function ProductSheet({
           </div>
 
           <Field label="Category">
-            <Select
-              value={form.category}
-              onValueChange={(v) => setForm({ ...form, category: v })}
-            >
-              <SelectTrigger aria-label="Select category"><SelectValue /></SelectTrigger>
+            <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
+              <SelectTrigger aria-label="Select category">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 {PRODUCT_CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -377,14 +424,16 @@ function ProductSheet({
           </Field>
 
           <div className="flex gap-2 pt-2">
-            {initial && (
+            {initial && canDelete && (
               <Button variant="outline" onClick={deactivate} disabled={busy}>
                 Remove
               </Button>
             )}
-            <Button onClick={save} disabled={busy} className="flex-1" variant="hero">
-              {busy ? "Saving…" : initial ? "Save changes" : "Add product"}
-            </Button>
+            {canEdit && (
+              <Button onClick={save} disabled={busy} className="flex-1" variant="hero">
+                {busy ? "Saving…" : initial ? "Save changes" : "Add product"}
+              </Button>
+            )}
           </div>
         </div>
       </SheetContent>

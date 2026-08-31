@@ -1,0 +1,271 @@
+:root {
+  --dark-bg: #1c2529;
+  --soft-green: #a1d1b1;
+  --light-text: #e5e5e5;
+  --accent-color: #a1d1b1;
+  --hover-color: #85b995;
+  --font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--dark-bg);
+  color: var(--light-text);
+  font-family: var(--font-family);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--hover-color);
+}
+
+/* Navigation */
+
+nav {
+  background-color: var(--soft-green);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+nav .logo {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: var(--dark-bg);
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1.8rem;
+}
+
+nav ul li {
+  font-weight: 600;
+}
+
+/* Buttons */
+
+.btn {
+  background-color: var(--accent-color);
+  border: none;
+  padding: 0.6rem 1.4rem;
+  border-radius: 30px;
+  color: var(--dark-bg);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  text-align: center;
+  display: inline-block;
+}
+
+.btn:hover {
+  background-color: var(--hover-color);
+  color: var(--dark-bg);
+}
+
+/* Container */
+
+.container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  flex-grow: 1;
+}
+
+/* Footer */
+
+footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  background-color: var(--soft-green);
+  color: var(--dark-bg);
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+/* Header hero */
+
+header.hero {
+  text-align: center;
+  margin-top: 4rem;
+}
+
+header.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+header.hero p {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto 2rem;
+}
+
+/* Featured Products */
+
+.featured-products {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+.product-card {
+  background: var(--soft-green);
+  color: var(--dark-bg);
+  padding: 1rem;
+  border-radius: 12px;
+  flex: 1 1 200px;
+  max-width: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-card img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.product-card h3 {
+  margin-bottom: 0.5rem;
+}
+
+.product-card p {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* Shop Page */
+
+.shop-filters {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.shop-filters select {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+}
+
+/* Product Details */
+
+.product-details {
+  display: flex;
+  gap: 3rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.product-image {
+  max-width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.product-info {
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.product-info h2 {
+  margin-bottom: 1rem;
+}
+
+.product-info p.description {
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  color: var(--light-text);
+}
+
+.product-info p.price {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: var(--accent-color);
+}
+
+/* Contact Form */
+
+.contact-form {
+  max-width: 600px;
+  margin: 2rem auto;
+  background: var(--soft-green);
+  padding: 2rem;
+  border-radius: 12px;
+  color: var(--dark-bg);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+.contact-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 0.7rem;
+  margin-bottom: 1.2rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+.contact-form button {
+  width: 100%;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .product-details {
+    flex-direction: column;
+    align-items: center;
+  }
+  .product-image,
+  .product-info {
+    max-width: 100%;
+  }
+
+  nav ul {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+}

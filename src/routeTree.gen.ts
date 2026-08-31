@@ -14,18 +14,19 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiProductSearchRouteImport } from './routes/api/product-search'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as ApiAiActionRouteImport } from './routes/api/ai-action'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedPurchasesRouteImport } from './routes/_authenticated/purchases'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
-import { Route as AuthenticatedKhataRouteImport } from './routes/_authenticated/khata'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
-import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers.index'
-import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers.$id'
+import { Route as AuthenticatedKhataIndexRouteImport } from './routes/_authenticated/khata.index'
+import { Route as AuthenticatedKhataIdRouteImport } from './routes/_authenticated/khata.$id'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 
@@ -53,9 +54,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiProductSearchRoute = ApiProductSearchRouteImport.update({
+  id: '/api/product-search',
+  path: '/api/product-search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiActionRoute = ApiAiActionRouteImport.update({
+  id: '/api/ai-action',
+  path: '/api/ai-action',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
@@ -71,11 +82,6 @@ const AuthenticatedPurchasesRoute = AuthenticatedPurchasesRouteImport.update({
 const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
   id: '/products',
   path: '/products',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedKhataRoute = AuthenticatedKhataRouteImport.update({
-  id: '/khata',
-  path: '/khata',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -105,18 +111,16 @@ const Char91DotmcpChar93ListToolsRoute =
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AuthenticatedCustomersIndexRoute =
-  AuthenticatedCustomersIndexRouteImport.update({
-    id: '/customers/',
-    path: '/customers/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedCustomersIdRoute =
-  AuthenticatedCustomersIdRouteImport.update({
-    id: '/customers/$id',
-    path: '/customers/$id',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
+const AuthenticatedKhataIndexRoute = AuthenticatedKhataIndexRouteImport.update({
+  id: '/khata/',
+  path: '/khata/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedKhataIdRoute = AuthenticatedKhataIdRouteImport.update({
+  id: '/khata/$id',
+  path: '/khata/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
   Char91DotmcpChar93InvokeToolToolRouteImport.update({
     id: '/.mcp/invoke-tool/$tool',
@@ -139,15 +143,16 @@ export interface FileRoutesByFullPath {
   '/assistant': typeof AuthenticatedAssistantRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/khata': typeof AuthenticatedKhataRoute
   '/products': typeof AuthenticatedProductsRoute
   '/purchases': typeof AuthenticatedPurchasesRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/api/ai-action': typeof ApiAiActionRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/product-search': typeof ApiProductSearchRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
-  '/customers/$id': typeof AuthenticatedCustomersIdRoute
-  '/customers/': typeof AuthenticatedCustomersIndexRoute
+  '/khata/$id': typeof AuthenticatedKhataIdRoute
+  '/khata/': typeof AuthenticatedKhataIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -159,15 +164,16 @@ export interface FileRoutesByTo {
   '/assistant': typeof AuthenticatedAssistantRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/khata': typeof AuthenticatedKhataRoute
   '/products': typeof AuthenticatedProductsRoute
   '/purchases': typeof AuthenticatedPurchasesRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/api/ai-action': typeof ApiAiActionRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/product-search': typeof ApiProductSearchRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
-  '/customers/$id': typeof AuthenticatedCustomersIdRoute
-  '/customers': typeof AuthenticatedCustomersIndexRoute
+  '/khata/$id': typeof AuthenticatedKhataIdRoute
+  '/khata': typeof AuthenticatedKhataIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -181,15 +187,16 @@ export interface FileRoutesById {
   '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/khata': typeof AuthenticatedKhataRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
   '/_authenticated/purchases': typeof AuthenticatedPurchasesRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
+  '/api/ai-action': typeof ApiAiActionRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/product-search': typeof ApiProductSearchRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
-  '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRoute
-  '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
+  '/_authenticated/khata/$id': typeof AuthenticatedKhataIdRoute
+  '/_authenticated/khata/': typeof AuthenticatedKhataIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -203,15 +210,16 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/billing'
     | '/dashboard'
-    | '/khata'
     | '/products'
     | '/purchases'
     | '/reports'
+    | '/api/ai-action'
     | '/api/chat'
+    | '/api/product-search'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
-    | '/customers/$id'
-    | '/customers/'
+    | '/khata/$id'
+    | '/khata/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -223,15 +231,16 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/billing'
     | '/dashboard'
-    | '/khata'
     | '/products'
     | '/purchases'
     | '/reports'
+    | '/api/ai-action'
     | '/api/chat'
+    | '/api/product-search'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
-    | '/customers/$id'
-    | '/customers'
+    | '/khata/$id'
+    | '/khata'
   id:
     | '__root__'
     | '/'
@@ -244,15 +253,16 @@ export interface FileRouteTypes {
     | '/_authenticated/assistant'
     | '/_authenticated/billing'
     | '/_authenticated/dashboard'
-    | '/_authenticated/khata'
     | '/_authenticated/products'
     | '/_authenticated/purchases'
     | '/_authenticated/reports'
+    | '/api/ai-action'
     | '/api/chat'
+    | '/api/product-search'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
-    | '/_authenticated/customers/$id'
-    | '/_authenticated/customers/'
+    | '/_authenticated/khata/$id'
+    | '/_authenticated/khata/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -263,7 +273,9 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  ApiAiActionRoute: typeof ApiAiActionRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiProductSearchRoute: typeof ApiProductSearchRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -305,11 +317,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/product-search': {
+      id: '/api/product-search'
+      path: '/api/product-search'
+      fullPath: '/api/product-search'
+      preLoaderRoute: typeof ApiProductSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
       fullPath: '/api/chat'
       preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-action': {
+      id: '/api/ai-action'
+      path: '/api/ai-action'
+      fullPath: '/api/ai-action'
+      preLoaderRoute: typeof ApiAiActionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/reports': {
@@ -331,13 +357,6 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof AuthenticatedProductsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/khata': {
-      id: '/_authenticated/khata'
-      path: '/khata'
-      fullPath: '/khata'
-      preLoaderRoute: typeof AuthenticatedKhataRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -375,18 +394,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/customers/': {
-      id: '/_authenticated/customers/'
-      path: '/customers'
-      fullPath: '/customers/'
-      preLoaderRoute: typeof AuthenticatedCustomersIndexRouteImport
+    '/_authenticated/khata/': {
+      id: '/_authenticated/khata/'
+      path: '/khata'
+      fullPath: '/khata/'
+      preLoaderRoute: typeof AuthenticatedKhataIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/customers/$id': {
-      id: '/_authenticated/customers/$id'
-      path: '/customers/$id'
-      fullPath: '/customers/$id'
-      preLoaderRoute: typeof AuthenticatedCustomersIdRouteImport
+    '/_authenticated/khata/$id': {
+      id: '/_authenticated/khata/$id'
+      path: '/khata/$id'
+      fullPath: '/khata/$id'
+      preLoaderRoute: typeof AuthenticatedKhataIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/.mcp/invoke-tool/$tool': {
@@ -410,24 +429,22 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedKhataRoute: typeof AuthenticatedKhataRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
   AuthenticatedPurchasesRoute: typeof AuthenticatedPurchasesRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
-  AuthenticatedCustomersIdRoute: typeof AuthenticatedCustomersIdRoute
-  AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
+  AuthenticatedKhataIdRoute: typeof AuthenticatedKhataIdRoute
+  AuthenticatedKhataIndexRoute: typeof AuthenticatedKhataIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAssistantRoute: AuthenticatedAssistantRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedKhataRoute: AuthenticatedKhataRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
   AuthenticatedPurchasesRoute: AuthenticatedPurchasesRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
-  AuthenticatedCustomersIdRoute: AuthenticatedCustomersIdRoute,
-  AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
+  AuthenticatedKhataIdRoute: AuthenticatedKhataIdRoute,
+  AuthenticatedKhataIndexRoute: AuthenticatedKhataIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -442,7 +459,9 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  ApiAiActionRoute: ApiAiActionRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiProductSearchRoute: ApiProductSearchRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }

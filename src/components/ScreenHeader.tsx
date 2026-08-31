@@ -36,9 +36,7 @@ export function ScreenHeader({
           <Logo size={36} />
           <div>
             <h1 className="text-lg font-bold leading-tight">{title}</h1>
-            {subtitle && (
-              <p className="text-xs text-primary-foreground/75">{subtitle}</p>
-            )}
+            {subtitle && <p className="text-xs text-primary-foreground/75">{subtitle}</p>}
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -76,9 +74,7 @@ export function ScreenHeader({
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => signOut()}>
-                      Sign out
-                    </AlertDialogAction>
+                    <AlertDialogAction onClick={() => signOut()}>Sign out</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>

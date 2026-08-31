@@ -35,9 +35,9 @@ export default defineTool({
     const { data, error } = await q;
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     const rows = low_stock_only
-      ? (data ?? []).filter((p: any) => {
-          const threshold = p.low_stock_threshold ?? p.min_stock ?? 5;
-          const stock = p.stock ?? p.quantity ?? 0;
+      ? (data ?? []).filter((p: Record<string, unknown>) => {
+          const threshold = (p.low_stock_threshold as number) ?? 5;
+          const stock = (p.stock_quantity as number) ?? 0;
           return stock <= threshold;
         })
       : (data ?? []);
