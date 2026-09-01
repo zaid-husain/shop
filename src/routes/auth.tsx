@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { TeamService } from "@/lib/domain/TeamService";
 import { phoneToEmail } from "@/lib/utils";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -46,11 +47,12 @@ function AuthPage() {
   const { session, loading } = useAuth();
   const { next } = Route.useSearch();
   const target = safeNext(next) ?? "/dashboard";
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "join">("signin");
   const [shopName, setShopName] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
+  const [joinCode, setJoinCode] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -80,7 +82,54 @@ function AuthPage() {
       // ensures it always meets Supabase's 6-char minimum.
       const password = `bap_${pin}_${phoneDigits.slice(-4)}`;
 
-      if (mode === "signup") {
+      if (mode === "join") {
+        if (!ownerName.trim()) {
+          setBusy(false);
+          return toast.error("Enter your full name");
+        }
+        if (!joinCode.trim()) {
+          setBusy(false);
+          return toast.error("Enter the join code");
+        }
+        const code = joinCode.trim().toUpperCase();
+
+        // 1. Validate the join code
+        const validation = await TeamService.validateJoinCode(phoneDigits, code);
+
+        if (!validation.valid) {
+          setBusy(false);
+          return toast.error("Invalid or expired join code.");
+        }
+
+        if (validation.user_exists) {
+          // 2a. User exists -> just login
+          const { error: sErr } = await supabase.auth.signInWithPassword({ email, password });
+          if (sErr) throw sErr;
+
+          // Now accept the invitation (changes their shop_id)
+          await TeamService.acceptInvitation(code);
+          toast.success("Joined shop successfully!");
+        } else {
+          // 2b. User does NOT exist -> sign them up
+          const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                full_name: ownerName.trim(),
+                phone: phoneDigits,
+                join_code: code,
+              },
+            },
+          });
+
+          if (error) throw error;
+
+          // Signup succeeded, the trigger joined them.
+          await supabase.auth.signInWithPassword({ email, password });
+          toast.success("Joined shop successfully!");
+        }
+      } else if (mode === "signup") {
         if (!ownerName.trim()) {
           setBusy(false);
           return toast.error("Enter the owner's name");
@@ -146,16 +195,16 @@ function AuthPage() {
         className="-mt-10 mx-4 rounded-2xl bg-card p-6 shadow-floating flex-1"
       >
         <div className="flex rounded-xl bg-muted p-1 mb-6">
-          {(["signin", "signup"] as const).map((m) => (
+          {(["signin", "join", "signup"] as const).map((m) => (
             <button
               key={m}
               type="button"
               onClick={() => setMode(m)}
-              className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all ${
+              className={`flex-1 rounded-lg py-2.5 text-xs sm:text-sm font-semibold transition-all ${
                 mode === m ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
-              {m === "signin" ? "Sign In" : "Create Shop"}
+              {m === "signin" ? "Sign In" : m === "join" ? "Join Shop" : "Create Shop"}
             </button>
           ))}
         </div>
@@ -178,6 +227,31 @@ function AuthPage() {
                 <Input
                   id="owner"
                   placeholder="Your full name"
+                  value={ownerName}
+                  onChange={(e) => setOwnerName(e.target.value)}
+                  className="h-12"
+                />
+              </div>
+            </>
+          )}
+
+          {mode === "join" && (
+            <>
+              <div className="space-y-1.5">
+                <Label htmlFor="joinCode">Join Code</Label>
+                <Input
+                  id="joinCode"
+                  placeholder="e.g. BAP7K29X"
+                  value={joinCode}
+                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                  className="h-12 uppercase tracking-wider font-semibold text-orange-600 dark:text-orange-400"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="owner">Your full name</Label>
+                <Input
+                  id="owner"
+                  placeholder="For your team to recognize you"
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
                   className="h-12"
@@ -227,9 +301,15 @@ function AuthPage() {
             variant="hero"
             size="lg"
             className="w-full mt-2"
-            disabled={busy || !phoneValid || !pinValid}
+            disabled={busy || !phoneValid || !pinValid || (mode === "join" && !joinCode.trim())}
           >
-            {busy ? "Please wait…" : mode === "signin" ? "Sign In" : "Create my shop"}
+            {busy
+              ? "Please wait…"
+              : mode === "signin"
+                ? "Sign In"
+                : mode === "join"
+                  ? "Join Shop"
+                  : "Create my shop"}
           </Button>
         </form>
       </motion.div>

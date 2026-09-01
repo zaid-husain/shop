@@ -11,6 +11,9 @@ import {
   ChevronRight,
   MessageCircle,
   Truck,
+  Activity,
+  CreditCard,
+  Package,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
 import { sb, type Customer, type LedgerEntry, type LedgerTransaction } from "@/lib/db";
@@ -19,18 +22,17 @@ import { formatINR, formatDate, buildWhatsAppUrl } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-export const Route = createFileRoute("/_authenticated/reports")({
+export const Route = createFileRoute("/_authenticated/management")({
   head: () => ({
     meta: [
-      { title: "Reports — Bharat Auto Parts" },
+      { title: "Management Hub — Bharat Auto Parts" },
       {
         name: "description",
-        content:
-          "Outstanding dues, collections, and top-customer reports for your auto parts shop.",
+        content: "Business Overview, Sales, Profits, Outstanding, and more for your shop.",
       },
     ],
   }),
-  component: ReportsPage,
+  component: ManagementPage,
 });
 
 type Row = Customer & {
@@ -40,7 +42,7 @@ type Row = Customer & {
   last_at: string | null;
 };
 
-function ReportsPage() {
+function ManagementPage() {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const [range, setRange] = useState<"30" | "90" | "365">("90");
@@ -128,7 +130,48 @@ function ReportsPage() {
       const monthCredit = months.reduce((s, m) => s + m.credit, 0);
       const monthPayment = months.reduce((s, m) => s + m.payment, 0);
 
-      return { rows, outstanding, advance, months, totals, monthCredit, monthPayment };
+      // Fetch Sales
+      const { data: salesData } = await sb
+        .from("invoices")
+        .select("total, created_at")
+        .gte(
+          "created_at",
+          new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString(),
+        );
+
+      let monthSales = 0;
+      let todaySales = 0;
+      const todayStr = new Date().toISOString().slice(0, 10);
+
+      for (const inv of salesData || []) {
+        const val = Number(inv.total || 0);
+        monthSales += val;
+        if (inv.created_at.startsWith(todayStr)) {
+          todaySales += val;
+        }
+      }
+
+      // Fetch Counts
+      const { count: prodCount } = await sb
+        .from("products")
+        .select("*", { count: "exact", head: true });
+      const { count: custCount } = await sb
+        .from("customers")
+        .select("*", { count: "exact", head: true });
+
+      return {
+        rows,
+        outstanding,
+        advance,
+        months,
+        totals,
+        monthCredit,
+        monthPayment,
+        monthSales,
+        todaySales,
+        prodCount,
+        custCount,
+      };
     },
   });
 
@@ -195,43 +238,74 @@ function ReportsPage() {
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="bg-white/10 backdrop-blur rounded-2xl p-3">
-            <div className="text-[10px] uppercase opacity-80 font-semibold inline-flex items-center gap-1">
-              <TrendingUp size={11} /> Outstanding
+          <div className="bg-white rounded-3xl p-4 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.15)] border border-[#EF4444]/10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#EF4444]/10 to-transparent rounded-full -mr-8 -mt-8"></div>
+            <div className="flex items-center gap-2 text-[#EF4444] font-semibold text-[10px] uppercase tracking-wide">
+              <TrendingUp size={12} /> Outstanding
             </div>
-            <div className="mt-1 text-lg font-extrabold tracking-tight">
+            <div className="mt-2 text-xl font-extrabold text-[#EF4444] tracking-tight">
               {formatINR(data?.totals.totalOutstanding ?? 0)}
             </div>
-            <div className="text-[10px] opacity-80">
-              {data?.totals.customersInDebt ?? 0} customers
+            <div className="mt-1 text-[10px] text-muted-foreground font-medium">
+              Across {data?.totals.customersInDebt ?? 0} customers
             </div>
           </div>
-          <div className="bg-white/10 backdrop-blur rounded-2xl p-3">
-            <div className="text-[10px] uppercase opacity-80 font-semibold inline-flex items-center gap-1">
-              <TrendingDown size={11} /> Advance
+
+          <div className="bg-white rounded-3xl p-4 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.15)] border border-[#16A34A]/10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#16A34A]/10 to-transparent rounded-full -mr-8 -mt-8"></div>
+            <div className="flex items-center gap-2 text-[#16A34A] font-semibold text-[10px] uppercase tracking-wide">
+              <Activity size={12} /> Today's Sales
             </div>
-            <div className="mt-1 text-lg font-extrabold tracking-tight">
-              {formatINR(data?.totals.totalAdvance ?? 0)}
+            <div className="mt-2 text-xl font-extrabold text-[#16A34A] tracking-tight">
+              {formatINR(data?.todaySales ?? 0)}
             </div>
-            <div className="text-[10px] opacity-80">paid in advance</div>
+            <div className="mt-1 text-[10px] text-muted-foreground font-medium">
+              {formatINR(data?.monthSales ?? 0)} this month
+            </div>
           </div>
-          <Link
-            to="/purchases"
-            className="bg-white/10 backdrop-blur rounded-2xl p-3 col-span-2 flex items-center justify-between hover:bg-white/15 transition"
-          >
-            <div>
-              <div className="text-[10px] uppercase opacity-80 font-semibold inline-flex items-center gap-1">
-                <Truck size={11} /> Purchases this month
-              </div>
-              <div className="mt-1 text-lg font-extrabold tracking-tight">
-                {formatINR(purchaseStats?.total ?? 0)}
-              </div>
-              <div className="text-[10px] opacity-80">
-                {purchaseStats?.count ?? 0} bills · {formatINR(purchaseStats?.due ?? 0)} due
-              </div>
+        </div>
+
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-2 snap-x hide-scrollbar">
+          <div className="shrink-0 w-32 bg-white rounded-2xl p-3 shadow-sm border border-border snap-start">
+            <div className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2">
+              <CreditCard size={12} />
             </div>
-            <ChevronRight size={16} className="opacity-80" />
-          </Link>
+            <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">
+              Total Collection
+            </div>
+            <div className="text-sm font-extrabold text-foreground">
+              {formatINR(data?.monthPayment ?? 0)}
+            </div>
+          </div>
+          <div className="shrink-0 w-32 bg-white rounded-2xl p-3 shadow-sm border border-border snap-start">
+            <div className="w-6 h-6 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-2">
+              <Users size={12} />
+            </div>
+            <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">
+              Total Customers
+            </div>
+            <div className="text-sm font-extrabold text-foreground">{data?.custCount ?? 0}</div>
+          </div>
+          <div className="shrink-0 w-32 bg-white rounded-2xl p-3 shadow-sm border border-border snap-start">
+            <div className="w-6 h-6 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center mb-2">
+              <Package size={12} />
+            </div>
+            <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">
+              Total Products
+            </div>
+            <div className="text-sm font-extrabold text-foreground">{data?.prodCount ?? 0}</div>
+          </div>
+          <div className="shrink-0 w-32 bg-white rounded-2xl p-3 shadow-sm border border-border snap-start">
+            <div className="w-6 h-6 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center mb-2">
+              <IndianRupee size={12} />
+            </div>
+            <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">
+              Monthly Sales
+            </div>
+            <div className="text-sm font-extrabold text-foreground">
+              {formatINR(data?.monthSales ?? 0)}
+            </div>
+          </div>
         </div>
       </div>
 

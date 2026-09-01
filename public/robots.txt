@@ -7,3 +7,6 @@ Disallow: /customers
 Disallow: /khata
 Disallow: /reports
 Disallow: /assistant
+Disallow: /api/
+
+Sitemap: https://bharatautoparts.vercel.app/sitemap.xml

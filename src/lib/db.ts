@@ -97,7 +97,9 @@ export type LedgerTransaction = {
   note: string | null;
   payment_method: string | null;
   reference_id: string | null;
+  receipt_url: string | null;
   idempotency_key: string | null;
+  payment_due_date: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -112,6 +114,7 @@ export type LedgerEntry = {
   entry_date: string;
   note: string | null;
   payment_method: string | null;
+  receipt_url: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -244,4 +247,18 @@ export type IdempotentRequest = {
   error_message: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type ShortMaal = {
+  id: string;
+  shop_id: string;
+  product_id: string;
+  quantity_needed: number;
+  priority: "low" | "medium" | "high" | "urgent";
+  status: "pending" | "purchased" | "cancelled";
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
 };

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Bharat Auto Parts</string>
+    <string name="title_activity_main">Bharat Auto Parts</string>
+    <string name="package_name">com.zashly.bharatautoparts</string>
+    <string name="custom_url_scheme">com.zashly.bharatautoparts</string>
+</resources>

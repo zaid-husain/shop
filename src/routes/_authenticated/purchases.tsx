@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SoundManager } from "@/lib/sounds";
 
 export const Route = createFileRoute("/_authenticated/purchases")({
   head: () => ({
@@ -361,12 +362,14 @@ function NewPurchaseSheet({
       const { error: iErr } = await sb.from("purchase_items").insert(itemRows);
       if (iErr) throw iErr;
 
+      SoundManager.play("stock");
       toast.success("Purchase recorded · stock updated");
       reset();
       onSaved();
       onOpenChange(false);
     } catch (e) {
       console.error(e);
+      SoundManager.play("error");
       toast.error("Something went wrong. Please try again.");
     } finally {
       setBusy(false);

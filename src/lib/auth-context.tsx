@@ -3,7 +3,7 @@ import { sb, type Profile } from "@/lib/db";
 import type { Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
-type Role = "owner" | "manager" | "staff" | null;
+export type Role = "owner" | "manager" | "staff" | null;
 
 interface AuthCtx {
   loading: boolean;

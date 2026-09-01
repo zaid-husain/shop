@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SoundManager } from "@/lib/sounds";
 
 function capitalize(str: string) {
   return str
@@ -302,16 +303,19 @@ function ProductSheet({
       if (initial) {
         const { error } = await sb.from("products").update(payload).eq("id", initial.id);
         if (error) throw error;
+        SoundManager.play("success");
         toast.success("Product updated");
       } else {
         const { error } = await sb.from("products").insert(payload);
         if (error) throw error;
+        SoundManager.play("success");
         toast.success("Product added");
       }
       onSaved();
       onOpenChange(false);
     } catch (e: unknown) {
       console.error(e);
+      SoundManager.play("error");
       toast.error("Something went wrong. Please try again.");
     } finally {
       setBusy(false);
@@ -326,8 +330,10 @@ function ProductSheet({
     setBusy(false);
     if (error) {
       console.error(error);
+      SoundManager.play("error");
       return toast.error("Something went wrong. Please try again.");
     }
+    SoundManager.play("success");
     toast.success("Product removed");
     onSaved();
     onOpenChange(false);
@@ -349,22 +355,13 @@ function ProductSheet({
             />
           </Field>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Part #">
-              <Input
-                value={form.part_number}
-                onChange={(e) => setForm({ ...form, part_number: e.target.value })}
-                placeholder="OEM #"
-              />
-            </Field>
-            <Field label="Brand">
-              <Input
-                value={form.brand}
-                onChange={(e) => setForm({ ...form, brand: e.target.value })}
-                placeholder="e.g. Bosch"
-              />
-            </Field>
-          </div>
+          <Field label="Brand">
+            <Input
+              value={form.brand}
+              onChange={(e) => setForm({ ...form, brand: e.target.value })}
+              placeholder="e.g. Bosch"
+            />
+          </Field>
 
           <Field label="Category">
             <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>

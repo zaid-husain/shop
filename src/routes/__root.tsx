@@ -8,6 +8,8 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -78,7 +80,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no",
+      },
       { title: "Bharat Auto Parts — Shop Manager" },
       {
         name: "description",
@@ -103,6 +108,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
     ],
     links: [
+      { rel: "icon", href: "/favicon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -151,6 +157,23 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Android hardware back button handler
+    if (Capacitor.isNativePlatform()) {
+      const listener = CapacitorApp.addListener("backButton", (info) => {
+        if (info.canGoBack) {
+          router.history.back();
+        } else {
+          CapacitorApp.exitApp();
+        }
+      });
+      return () => {
+        listener.then((l) => l.remove()).catch(console.error);
+      };
+    }
+  }, [router.history]);
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -36,9 +36,16 @@ import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { SaleService } from "@/lib/domain/SaleService";
 import { useOnlineStatus } from "@/hooks/use-online-status";
+import { CustomerService } from "@/lib/domain/CustomerService";
 import { cn } from "@/lib/utils";
+import { SoundManager } from "@/lib/sounds";
 
 export const Route = createFileRoute("/_authenticated/billing")({
+  validateSearch: (search: Record<string, unknown>): { customerId?: string } => {
+    return {
+      customerId: typeof search.customerId === "string" ? search.customerId : undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Billing & Invoices — Bharat Auto Parts" },
@@ -100,6 +107,8 @@ const PAYMENT_METHODS = [
 function BillingPage() {
   const { profile } = useAuth();
   const qc = useQueryClient();
+  const search = Route.useSearch();
+  const searchCustomerId = search.customerId;
   const [items, setItems] = useState<CartItem[]>([]);
 
   // Modals
@@ -117,6 +126,19 @@ function BillingPage() {
   const [saving, setSaving] = useState(false);
 
   const { status: onlineStatus } = useOnlineStatus();
+
+  // Pre-fill customer from URL search param if present
+  useEffect(() => {
+    if (searchCustomerId && profile?.shop_id && !customer) {
+      CustomerService.getCustomerById(searchCustomerId, profile.shop_id)
+        .then((c) => {
+          if (c) {
+            setCustomer(c);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [searchCustomerId, profile?.shop_id]);
 
   // Computed
   const subtotal = useMemo(() => items.reduce((a, i) => a + i.unit_price * i.quantity, 0), [items]);
@@ -219,6 +241,7 @@ function BillingPage() {
 
       qc.invalidateQueries({ queryKey: ["dashboard"] });
       qc.invalidateQueries({ queryKey: ["products"] });
+      SoundManager.play("sale");
       toast.success(`Bill saved successfully`);
 
       const { data: inv } = await sb
@@ -229,6 +252,7 @@ function BillingPage() {
       return { id: result.invoice_id, invoice_number: inv?.invoice_number || invNo };
     } catch (e: unknown) {
       console.error(e);
+      SoundManager.play("error");
       toast.error((e as Error).message || "Something went wrong. Please try again.");
       return null;
     } finally {
@@ -454,7 +478,7 @@ function BillingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-48 font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] pb-96 font-sans">
       {/* 1. Header Redesign */}
       <div className="sticky top-0 z-30 bg-gradient-to-r from-[#0B3D91] to-[#1a55b3] text-white pt-10 pb-6 px-4 shadow-md rounded-b-3xl">
         <div className="flex justify-between items-start mb-2">
@@ -665,9 +689,9 @@ function BillingPage() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed bottom-[65px] md:bottom-0 left-0 right-0 z-40 bg-white rounded-t-3xl shadow-[0_-8px_30px_-15px_rgba(0,0,0,0.1)] border-t border-slate-100 overflow-hidden"
+            className="fixed bottom-16 left-0 right-0 z-40 bg-white rounded-t-3xl shadow-[0_-10px_35px_-5px_rgba(0,0,0,0.18)] border-t border-slate-200 overflow-hidden"
           >
-            <div className="max-h-[70vh] overflow-y-auto no-scrollbar pb-6">
+            <div className="max-h-[60vh] sm:max-h-[70vh] overflow-y-auto no-scrollbar pb-6">
               <div className="p-4 space-y-4">
                 {/* Summary Box */}
                 <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">

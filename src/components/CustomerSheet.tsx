@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { CustomerService } from "@/lib/domain/CustomerService";
+import { SoundManager } from "@/lib/sounds";
 
 interface CustomerSheetProps {
   open: boolean;
@@ -72,15 +73,18 @@ export function CustomerSheet({ open, onOpenChange, initial, onSaved }: Customer
       };
       if (initial) {
         await CustomerService.updateCustomer(initial.id, profile.shop_id, payload);
+        SoundManager.play("success");
         toast.success("Customer updated");
       } else {
         await CustomerService.createCustomer(profile.shop_id, payload);
+        SoundManager.play("success");
         toast.success("Customer added");
       }
       onSaved();
       onOpenChange(false);
     } catch (e: unknown) {
       console.error(e);
+      SoundManager.play("error");
       toast.error("Something went wrong. Please try again.");
     } finally {
       setBusy(false);
@@ -93,11 +97,13 @@ export function CustomerSheet({ open, onOpenChange, initial, onSaved }: Customer
     setBusy(true);
     try {
       await CustomerService.softDeleteCustomer(initial.id, profile.shop_id);
+      SoundManager.play("success");
       toast.success("Deleted");
       onSaved();
       onOpenChange(false);
     } catch (error) {
       console.error(error);
+      SoundManager.play("error");
       toast.error("Something went wrong. Please try again.");
     } finally {
       setBusy(false);

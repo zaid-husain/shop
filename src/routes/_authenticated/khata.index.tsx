@@ -19,6 +19,8 @@ import {
   ArrowDownRight,
   Users,
   Clock,
+  Camera,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { sb, type Customer, type LedgerEntry, type LedgerTransaction } from "@/lib/db";
@@ -42,6 +44,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { SoundManager } from "@/lib/sounds";
 
 export const Route = createFileRoute("/_authenticated/khata/")({
   head: () => ({
@@ -263,13 +266,6 @@ function KhataPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Link
-              to="/reports"
-              className="grid place-items-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-md border border-white/10"
-              aria-label="Reports"
-            >
-              <Bell size={18} />
-            </Link>
             <button
               onClick={() => setShowSearch((v) => !v)}
               className={cn(
@@ -638,6 +634,8 @@ export function EntrySheet({
   const [note, setNote] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [method, setMethod] = useState<string>("cash");
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [paymentDueDate, setPaymentDueDate] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const { status: onlineStatus } = useOnlineStatus();
 
@@ -659,20 +657,45 @@ export function EntrySheet({
         finalNote = finalNote ? `${finalNote} (via ${method})` : `Payment via ${method}`;
       }
 
+      let receiptUrl: string | null = null;
+      if (receiptFile) {
+        const ext = receiptFile.name.split(".").pop();
+        const filename = `${crypto.randomUUID()}.${ext}`;
+        const filePath = `${profile!.shop_id}/${filename}`;
+
+        const { error: uploadError } = await sb.storage
+          .from("khata_receipts")
+          .upload(filePath, receiptFile);
+
+        if (uploadError) {
+          console.error(uploadError);
+          throw new Error("Failed to upload receipt image");
+        }
+
+        const { data: publicUrlData } = sb.storage.from("khata_receipts").getPublicUrl(filePath);
+        receiptUrl = publicUrlData.publicUrl;
+      }
+
       await LedgerService.createManualEntry(
         profile!.shop_id,
         customer.id,
         balanceImpact,
         finalNote,
+        receiptUrl,
+        type === "credit" && paymentDueDate ? new Date(paymentDueDate).toISOString() : null,
       );
 
+      SoundManager.play(type === "credit" ? "sale" : "payment");
       toast.success(type === "credit" ? "Credit entry added" : "Payment recorded");
       setAmount("");
       setNote("");
+      setReceiptFile(null);
+      setPaymentDueDate("");
       onSaved();
       onOpenChange(false);
     } catch (e: unknown) {
       console.error(e);
+      SoundManager.play("error");
       toast.error((e as Error).message || "Something went wrong. Please try again.");
     } finally {
       setBusy(false);
@@ -711,6 +734,16 @@ export function EntrySheet({
             <Label className="text-xs">Date</Label>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
+          {isCredit && (
+            <div className="space-y-1.5">
+              <Label className="text-xs">Payment Due Date (Optional)</Label>
+              <Input
+                type="date"
+                value={paymentDueDate}
+                onChange={(e) => setPaymentDueDate(e.target.value)}
+              />
+            </div>
+          )}
           {!isCredit && (
             <div className="space-y-1.5">
               <Label className="text-xs">Payment method</Label>
@@ -721,9 +754,6 @@ export function EntrySheet({
                 <SelectContent>
                   <SelectItem value="cash">Cash</SelectItem>
                   <SelectItem value="upi">UPI</SelectItem>
-                  <SelectItem value="card">Card</SelectItem>
-                  <SelectItem value="bank">Bank Transfer</SelectItem>
-                  <SelectItem value="cheque">Cheque</SelectItem>
                 </SelectContent>
               </Select>
             </div>
