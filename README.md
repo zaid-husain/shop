@@ -1,4 +1,3 @@
-[README (1).md](https://github.com/user-attachments/files/31860192/README.1.md)
 # Apna Khata
 
 > **Modern POS, Inventory, Khata & AI-powered Shop Management for Automobile Spare Parts Businesses**
@@ -9,7 +8,6 @@ It brings **counter billing, digital Khata, customer credit tracking, inventory,
 
 **Primary Product:** Apna Khata  
 **Technology Attribution:** Powered by Zashly  
-**Android Package:** `com.zashly.bharatautoparts`
 
 ---
 
