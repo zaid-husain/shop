@@ -1,13 +1,13 @@
-[README.md](https://github.com/user-attachments/files/31860080/README.md)
-# Bharat Auto Parts
+[README (1).md](https://github.com/user-attachments/files/31860192/README.1.md)
+# Apna Khata
 
 > **Modern POS, Inventory, Khata & AI-powered Shop Management for Automobile Spare Parts Businesses**
 
-Bharat Auto Parts is a mobile-first, full-stack shop management platform built for Indian automobile spare-parts retailers, workshops, garages, and small-to-medium distributors.
+Apna Khata is a mobile-first, full-stack shop management platform built for Indian automobile spare-parts retailers, workshops, garages, and small-to-medium distributors.
 
 It brings **counter billing, digital Khata, customer credit tracking, inventory, purchases, Short Maal, team management, reports, WhatsApp sharing, audio feedback, and AI assistance** into one practical workflow.
 
-**Primary Product:** Bharat Auto Parts  
+**Primary Product:** Apna Khata  
 **Technology Attribution:** Powered by Zashly  
 **Android Package:** `com.zashly.bharatautoparts`
 
@@ -38,11 +38,11 @@ It brings **counter billing, digital Khata, customer credit tracking, inventory,
 
 ---
 
-## 🎯 Why Bharat Auto Parts?
+## 🎯 Why Apna Khata?
 
 Traditional spare-parts shops often rely on paper Khata books, memory, spreadsheets, and disconnected billing/inventory tools.
 
-Bharat Auto Parts is designed around the real workflow of a shopkeeper:
+Apna Khata is designed around the real workflow of a shopkeeper:
 
 **Sell → Record payment → Track Khata → Monitor stock → Remember shortages → Purchase stock → Review business**
 
@@ -331,7 +331,7 @@ A single physical shop can have multiple user accounts.
 Example:
 
 ```text
-Bharat Auto Parts
+Apna Khata
 ├── Owner 1
 ├── Owner 2
 ├── Manager
@@ -409,7 +409,7 @@ The application uses:
 
 # 🤖 AI Shop Assistant
 
-Bharat Auto Parts includes a shop-focused conversational AI system.
+Apna Khata includes a shop-focused conversational AI system.
 
 ## Languages
 
@@ -505,7 +505,7 @@ This allows the shop backend to expose controlled business capabilities to compa
 
 # 🔊 Sound & Feedback System
 
-Bharat Auto Parts includes a centralized sound-feedback system.
+Apna Khata includes a centralized sound-feedback system.
 
 Sounds are intended to be subtle and business-focused rather than noisy.
 
@@ -539,13 +539,13 @@ Sound effects can be enabled or muted from Preferences.
 
 # 📱 Android App
 
-Bharat Auto Parts is integrated with **Capacitor** for native Android packaging.
+Apna Khata is integrated with **Capacitor** for native Android packaging.
 
 ### App identity
 
 ```text
 Application Name:
-Bharat Auto Parts
+Apna Khata
 
 Android Package:
 com.zashly.bharatautoparts
@@ -1119,7 +1119,7 @@ Based on the current repository analysis:
 
 # 🏆 Product Philosophy
 
-Bharat Auto Parts follows a simple principle:
+Apna Khata follows a simple principle:
 
 > **Make complex shop management feel simple.**
 
@@ -1164,7 +1164,7 @@ PROFILE
 
 # 🧑‍💻 Built With
 
-**Bharat Auto Parts** is powered by a modern TypeScript stack combining React, TanStack Start, Supabase, PostgreSQL, AI tooling, and Capacitor.
+**Apna Khata** is powered by a modern TypeScript stack combining React, TanStack Start, Supabase, PostgreSQL, AI tooling, and Capacitor.
 
 **Powered by Zashly**
 
@@ -1195,4 +1195,4 @@ If this project is useful to you:
 
 ---
 
-**Bharat Auto Parts — a practical digital operating system for automobile spare-parts businesses.**
+**Apna Khata — a practical digital operating system for automobile spare-parts businesses.**
