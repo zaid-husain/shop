@@ -20,6 +20,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -62,6 +71,8 @@ function ShortMaalPage() {
   const [filter, setFilter] = useState<"all" | "pending" | "purchased" | "high">("pending");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editing, setEditing] = useState<ExtendedShortMaal | null>(null);
+  const [itemToCancel, setItemToCancel] = useState<string | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const { data: shortMaals, isLoading } = useQuery({
     queryKey: ["short_maals", profile?.shop_id],
@@ -134,22 +145,25 @@ function ShortMaalPage() {
     }
   }
 
-  async function cancelItem(id: string) {
-    if (!canEdit) return;
-    if (!confirm("Are you sure you want to cancel this item?")) return;
+  async function confirmCancelItem() {
+    if (!canEdit || !itemToCancel) return;
+    setIsCancelling(true);
     try {
       const { error } = await sb
         .from("short_maals")
         .update({ status: "cancelled", completed_at: new Date().toISOString() })
-        .eq("id", id);
+        .eq("id", itemToCancel);
       if (error) throw error;
-      SoundManager.play("success");
+      SoundManager.play("completion");
       toast.success("Item removed from Short Maal");
+      setItemToCancel(null);
       qc.invalidateQueries({ queryKey: ["short_maals"] });
     } catch (e) {
       console.error(e);
       SoundManager.play("error");
       toast.error("Failed to cancel item");
+    } finally {
+      setIsCancelling(false);
     }
   }
 
@@ -270,7 +284,7 @@ function ShortMaalPage() {
                   size="icon-sm"
                   variant="outline"
                   className="h-8 w-8 text-destructive hover:bg-destructive/10"
-                  onClick={() => cancelItem(item.id)}
+                  onClick={() => setItemToCancel(item.id)}
                 >
                   <XCircle size={14} />
                 </Button>
@@ -286,6 +300,32 @@ function ShortMaalPage() {
         initial={editing}
         onSaved={() => qc.invalidateQueries({ queryKey: ["short_maals"] })}
       />
+
+      <AlertDialog open={!!itemToCancel} onOpenChange={(v) => !v && setItemToCancel(null)}>
+        <AlertDialogContent className="rounded-3xl max-w-sm w-[90vw]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold">
+              Remove from Short Maal?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm font-medium">
+              Are you sure you want to remove this item from the procurement reminder list?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4">
+            <AlertDialogCancel disabled={isCancelling} className="rounded-xl h-12">
+              Keep Item
+            </AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={confirmCancelItem}
+              disabled={isCancelling}
+              className="rounded-xl h-12 text-base font-bold shadow-sm"
+            >
+              {isCancelling ? "Removing..." : "Remove Item"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

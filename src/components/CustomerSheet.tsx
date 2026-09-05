@@ -10,6 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 import { CustomerService } from "@/lib/domain/CustomerService";
 import { SoundManager } from "@/lib/sounds";
 
@@ -23,6 +32,8 @@ interface CustomerSheetProps {
 export function CustomerSheet({ open, onOpenChange, initial, onSaved }: CustomerSheetProps) {
   const { profile } = useAuth();
   const [busy, setBusy] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [form, setForm] = useState<Partial<Customer> & { _id?: string }>({
     name: "",
     mobile: "",
@@ -93,12 +104,12 @@ export function CustomerSheet({ open, onOpenChange, initial, onSaved }: Customer
 
   async function remove() {
     if (!initial || !profile?.shop_id) return;
-    if (!confirm(`Delete customer "${initial.name}"?`)) return;
-    setBusy(true);
+    setIsDeleting(true);
     try {
       await CustomerService.softDeleteCustomer(initial.id, profile.shop_id);
-      SoundManager.play("success");
-      toast.success("Deleted");
+      SoundManager.play("completion");
+      toast.success("Customer deleted successfully");
+      setDeleteConfirmOpen(false);
       onSaved();
       onOpenChange(false);
     } catch (error) {
@@ -106,7 +117,7 @@ export function CustomerSheet({ open, onOpenChange, initial, onSaved }: Customer
       SoundManager.play("error");
       toast.error("Something went wrong. Please try again.");
     } finally {
-      setBusy(false);
+      setIsDeleting(false);
     }
   }
 
@@ -121,101 +132,143 @@ export function CustomerSheet({ open, onOpenChange, initial, onSaved }: Customer
   const totalDue = (dueInvoices ?? []).reduce((s, i) => s + Number(i.due ?? 0), 0);
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-3xl max-h-[92vh] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>{initial ? "Edit customer" : "New customer"}</SheetTitle>
-        </SheetHeader>
+    <>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent side="bottom" className="rounded-t-3xl max-h-[92vh] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>{initial ? "Edit customer" : "New customer"}</SheetTitle>
+          </SheetHeader>
 
-        {/* Due invoices section */}
-        {initial && totalDue > 0 && (
-          <div className="mt-4 rounded-2xl bg-destructive/5 border border-destructive/20 p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-bold text-destructive flex items-center gap-1.5">
-                <IndianRupee size={14} /> Outstanding Dues
-              </div>
-              <span className="text-sm font-bold text-destructive">{formatINR(totalDue)}</span>
-            </div>
-            <div className="space-y-2">
-              {dueInvoices?.map((inv) => (
-                <div key={inv.id} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <CalendarDays size={12} />
-                    <span>{inv.invoice_number}</span>
-                    <span>·</span>
-                    <span>{formatDate(inv.created_at)}</span>
-                  </div>
-                  <div className="font-semibold text-destructive">{formatINR(Number(inv.due))}</div>
+          {/* Due invoices section */}
+          {initial && totalDue > 0 && (
+            <div className="mt-4 rounded-2xl bg-destructive/5 border border-destructive/20 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-bold text-destructive flex items-center gap-1.5">
+                  <IndianRupee size={14} /> Outstanding Dues
                 </div>
-              ))}
-            </div>
-            <Button
-              variant="hero"
-              size="sm"
-              className="w-full"
-              onClick={sendReminder}
-              disabled={!initial.mobile}
-            >
-              <MessageCircle size={16} /> Send WhatsApp Reminder
-            </Button>
-          </div>
-        )}
-
-        <div className="space-y-3 mt-4">
-          <div className="space-y-1.5">
-            <Label className="text-xs">Name *</Label>
-            <Input
-              value={form.name || ""}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Mobile</Label>
-            <Input
-              inputMode="numeric"
-              value={form.mobile || ""}
-              onChange={(e) =>
-                setForm({ ...form, mobile: e.target.value.replace(/\D/g, "").slice(0, 10) })
-              }
-              placeholder="10-digit number"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Vehicle number</Label>
-            <Input
-              value={form.vehicle_number || ""}
-              onChange={(e) => setForm({ ...form, vehicle_number: e.target.value.toUpperCase() })}
-              placeholder="MH 12 AB 1234"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Address</Label>
-            <Textarea
-              value={form.address || ""}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-              rows={2}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Notes</Label>
-            <Textarea
-              value={form.notes || ""}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              rows={2}
-            />
-          </div>
-          <div className="flex gap-2 pt-2">
-            {initial && (
-              <Button variant="outline" onClick={remove} disabled={busy}>
-                Delete
+                <span className="text-sm font-bold text-destructive">{formatINR(totalDue)}</span>
+              </div>
+              <div className="space-y-2">
+                {dueInvoices?.map((inv) => (
+                  <div key={inv.id} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <CalendarDays size={12} />
+                      <span>{inv.invoice_number}</span>
+                      <span>·</span>
+                      <span>{formatDate(inv.created_at)}</span>
+                    </div>
+                    <div className="font-semibold text-destructive">
+                      {formatINR(Number(inv.due))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button
+                variant="hero"
+                size="sm"
+                className="w-full"
+                onClick={sendReminder}
+                disabled={!initial.mobile}
+              >
+                <MessageCircle size={16} /> Send WhatsApp Reminder
               </Button>
-            )}
-            <Button onClick={save} disabled={busy} className="flex-1" variant="hero">
-              {busy ? "Saving…" : initial ? "Save" : "Add customer"}
-            </Button>
+            </div>
+          )}
+
+          <div className="space-y-3 mt-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Name *</Label>
+              <Input
+                value={form.name || ""}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Mobile</Label>
+              <Input
+                inputMode="numeric"
+                value={form.mobile || ""}
+                onChange={(e) =>
+                  setForm({ ...form, mobile: e.target.value.replace(/\D/g, "").slice(0, 10) })
+                }
+                placeholder="10-digit number"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Vehicle number</Label>
+              <Input
+                value={form.vehicle_number || ""}
+                onChange={(e) => setForm({ ...form, vehicle_number: e.target.value.toUpperCase() })}
+                placeholder="MH 12 AB 1234"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Address</Label>
+              <Textarea
+                value={form.address || ""}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                rows={2}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Notes</Label>
+              <Textarea
+                value={form.notes || ""}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                rows={2}
+              />
+            </div>
+            <div className="flex gap-2 pt-2">
+              {initial && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDeleteConfirmOpen(true)}
+                  disabled={busy || isDeleting}
+                  className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20"
+                >
+                  Delete
+                </Button>
+              )}
+              <Button
+                onClick={save}
+                disabled={busy || isDeleting}
+                className="flex-1"
+                variant="hero"
+              >
+                {busy ? "Saving…" : initial ? "Save" : "Add customer"}
+              </Button>
+            </div>
           </div>
-        </div>
-      </SheetContent>
-    </Sheet>
+        </SheetContent>
+      </Sheet>
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent className="rounded-3xl max-w-sm w-[90vw]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold">Delete Customer?</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm font-medium">
+              Are you sure you want to delete{" "}
+              <span className="font-bold text-foreground">"{initial?.name}"</span>? All previous
+              khata and transaction history will remain safe, but this customer will be removed from
+              your active list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4">
+            <AlertDialogCancel disabled={isDeleting} className="rounded-xl h-12">
+              Cancel
+            </AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={remove}
+              disabled={isDeleting}
+              className="rounded-xl h-12 text-base font-bold shadow-sm"
+            >
+              {isDeleting ? "Deleting..." : "Delete Customer"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

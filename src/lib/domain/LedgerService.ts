@@ -58,7 +58,23 @@ export class LedgerService {
   ): Promise<void> {
     if (amount === 0) throw new Error("Amount must not be zero");
 
-    const { error: updateErr } = await sb
+    // 1. Try atomic RPC first
+    const { error: rpcErr } = await sb.rpc("update_manual_ledger_entry", {
+      p_transaction_id: transactionId,
+      p_shop_id: shopId,
+      p_customer_id: customerId,
+      p_amount: amount,
+      p_notes: note.trim() || null,
+      p_receipt_url: receiptUrl,
+      p_payment_due_date: paymentDueDate,
+    });
+
+    if (!rpcErr) {
+      return;
+    }
+
+    // 2. Direct update fallback with explicit select validation to prevent silent failures
+    const { data: updatedRows, error: updateErr } = await sb
       .from("ledger_transactions")
       .update({
         amount: Math.abs(amount),
@@ -68,9 +84,15 @@ export class LedgerService {
         payment_due_date: paymentDueDate,
       })
       .eq("id", transactionId)
-      .eq("shop_id", shopId);
+      .eq("shop_id", shopId)
+      .select();
 
     if (updateErr) throw updateErr;
+    if (!updatedRows || updatedRows.length === 0) {
+      throw new Error(
+        "Failed to update entry. You may not have permission or the entry was not found.",
+      );
+    }
 
     // Recalculate customer balance cache
     const { data: sumData, error: sumErr } = await sb
@@ -97,13 +119,31 @@ export class LedgerService {
     shopId: string,
     customerId: string,
   ): Promise<void> {
-    const { error: delErr } = await sb
+    // 1. Try atomic RPC first
+    const { error: rpcErr } = await sb.rpc("delete_manual_ledger_entry", {
+      p_transaction_id: transactionId,
+      p_shop_id: shopId,
+      p_customer_id: customerId,
+    });
+
+    if (!rpcErr) {
+      return;
+    }
+
+    // 2. Direct delete fallback with explicit select validation to prevent silent failures
+    const { data: deletedRows, error: delErr } = await sb
       .from("ledger_transactions")
       .delete()
       .eq("id", transactionId)
-      .eq("shop_id", shopId);
+      .eq("shop_id", shopId)
+      .select();
 
     if (delErr) throw delErr;
+    if (!deletedRows || deletedRows.length === 0) {
+      throw new Error(
+        "Failed to delete entry. You may not have permission or the entry was not found.",
+      );
+    }
 
     // Recalculate customer balance cache
     const { data: sumData, error: sumErr } = await sb

@@ -16,6 +16,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 import { SoundManager } from "@/lib/sounds";
 
 export const Route = createFileRoute("/_authenticated/team")({
@@ -28,6 +37,8 @@ function TeamPage() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [invitePhone, setInvitePhone] = useState("");
   const [inviteRole, setInviteRole] = useState<"owner" | "manager" | "staff">("staff");
+  const [memberToRemove, setMemberToRemove] = useState<{ id: string; name: string } | null>(null);
+  const [inviteToCancel, setInviteToCancel] = useState<{ id: string; phone: string } | null>(null);
 
   const isOwnerOrManager = currentUserRole === "owner" || currentUserRole === "manager";
 
@@ -215,11 +226,7 @@ function TeamPage() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => {
-                          if (confirm(`Remove ${member.full_name} from the shop?`)) {
-                            removeMutation.mutate(member.id);
-                          }
-                        }}
+                        onClick={() => setMemberToRemove({ id: member.id, name: member.full_name })}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -279,11 +286,7 @@ function TeamPage() {
                     variant="ghost"
                     size="sm"
                     className="text-muted-foreground hover:text-destructive"
-                    onClick={() => {
-                      if (confirm(`Cancel invitation for ${invite.phone}?`)) {
-                        cancelMutation.mutate(invite.id);
-                      }
-                    }}
+                    onClick={() => setInviteToCancel({ id: invite.id, phone: invite.phone })}
                   >
                     Cancel
                   </Button>
@@ -293,6 +296,71 @@ function TeamPage() {
           </section>
         )}
       </div>
+
+      {/* Remove Team Member Confirmation Dialog */}
+      <AlertDialog open={!!memberToRemove} onOpenChange={(v) => !v && setMemberToRemove(null)}>
+        <AlertDialogContent className="rounded-3xl max-w-sm w-[90vw]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold">Remove Team Member?</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm font-medium">
+              Are you sure you want to remove{" "}
+              <span className="font-bold text-foreground">"{memberToRemove?.name}"</span> from this
+              shop? They will lose access immediately.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4">
+            <AlertDialogCancel disabled={removeMutation.isPending} className="rounded-xl h-12">
+              Cancel
+            </AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (memberToRemove) {
+                  removeMutation.mutate(memberToRemove.id, {
+                    onSettled: () => setMemberToRemove(null),
+                  });
+                }
+              }}
+              disabled={removeMutation.isPending}
+              className="rounded-xl h-12 text-base font-bold shadow-sm"
+            >
+              {removeMutation.isPending ? "Removing..." : "Remove Member"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Cancel Invitation Confirmation Dialog */}
+      <AlertDialog open={!!inviteToCancel} onOpenChange={(v) => !v && setInviteToCancel(null)}>
+        <AlertDialogContent className="rounded-3xl max-w-sm w-[90vw]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold">Cancel Invitation?</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm font-medium">
+              Are you sure you want to cancel the invitation for{" "}
+              <span className="font-bold text-foreground">{inviteToCancel?.phone}</span>?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4">
+            <AlertDialogCancel disabled={cancelMutation.isPending} className="rounded-xl h-12">
+              Keep Invitation
+            </AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (inviteToCancel) {
+                  cancelMutation.mutate(inviteToCancel.id, {
+                    onSettled: () => setInviteToCancel(null),
+                  });
+                }
+              }}
+              disabled={cancelMutation.isPending}
+              className="rounded-xl h-12 text-base font-bold shadow-sm"
+            >
+              {cancelMutation.isPending ? "Cancelling..." : "Cancel Invitation"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

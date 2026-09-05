@@ -141,11 +141,13 @@ function CustomerProfilePage() {
           .from("ledger_transactions")
           .select("*")
           .eq("customer_id", id)
+          .eq("shop_id", profile!.shop_id)
           .order("created_at", { ascending: true }),
         sb
           .from("invoices")
           .select("*")
           .eq("customer_id", id)
+          .eq("shop_id", profile!.shop_id)
           .order("created_at", { ascending: false })
           .limit(50),
       ]);
@@ -285,18 +287,79 @@ function CustomerProfilePage() {
   async function handleDeleteEntry() {
     if (!profile?.shop_id || !selectedEntry) return;
 
+    const entryToDelete = selectedEntry;
+
     try {
       setIsDeleting(true);
-      await LedgerService.deleteManualEntry(selectedEntry.id, profile.shop_id, id);
+      await LedgerService.deleteManualEntry(entryToDelete.id, profile.shop_id, id);
 
-      // Await invalidations so the UI updates *before* we dismiss the modal and loading state
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+
+      // 1. Instantly update local React Query cache for customer-ledger
+      qc.setQueriesData({ queryKey: ["customer-ledger", id] }, (old: any) => {
+        if (!old || !old.entries) return old;
+        const remainingRows = old.entries.filter(
+          (r: any) => r.entry && r.entry.id !== entryToDelete.id,
+        );
+
+        const credit_total = remainingRows
+          .filter((r: any) => r.entry.entry_type === "credit")
+          .reduce((s: number, r: any) => s + Number(r.entry.amount), 0);
+        const payment_total = remainingRows
+          .filter((r: any) => r.entry.entry_type === "payment")
+          .reduce((s: number, r: any) => s + Number(r.entry.amount), 0);
+        const newBalance = credit_total - payment_total;
+
+        let running = 0;
+        const withRunning = remainingRows.map((r: any) => {
+          running +=
+            r.entry.entry_type === "credit" ? Number(r.entry.amount) : -Number(r.entry.amount);
+          return { entry: r.entry, running };
+        });
+
+        return {
+          ...old,
+          customer: old.customer ? { ...old.customer, balance_cache: newBalance } : old.customer,
+          entries: withRunning,
+          credit_total,
+          payment_total,
+          balance: newBalance,
+        };
+      });
+
+      // 2. Also update customer query cache if present
+      qc.setQueriesData({ queryKey: ["customer", id] }, (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          balance_cache:
+            data && data.balance !== undefined
+              ? data.balance -
+                (entryToDelete.entry_type === "credit"
+                  ? Number(entryToDelete.amount)
+                  : -Number(entryToDelete.amount))
+              : old.balance_cache,
+        };
+      });
+
+      // 3. Also update customer-ledger-preview if present
+      qc.setQueriesData({ queryKey: ["customer-ledger-preview", id] }, (old: any) => {
+        if (!Array.isArray(old)) return old;
+        return old.filter((item: any) => item.id !== entryToDelete.id);
+      });
+      /* eslint-enable @typescript-eslint/no-explicit-any */
+
+      // 4. Invalidate all related queries to guarantee full eventual consistency
       await Promise.all([
-        qc.invalidateQueries({ queryKey: ["customer-ledger", id, profile.shop_id] }),
+        qc.invalidateQueries({ queryKey: ["customer-ledger", id] }),
+        qc.invalidateQueries({ queryKey: ["customer", id] }),
+        qc.invalidateQueries({ queryKey: ["customer-ledger-preview", id] }),
         qc.invalidateQueries({ queryKey: ["khata"] }),
         qc.invalidateQueries({ queryKey: ["dashboard"] }),
         qc.invalidateQueries({ queryKey: ["reports"] }),
       ]);
 
+      // 5. Success feedback & modal cleanup
       SoundManager.play("completion");
       toast.success("Entry deleted successfully");
       setDeleteConfirmOpen(false);
@@ -643,8 +706,11 @@ function CustomerProfilePage() {
         type={entryType}
         onSaved={() => {
           qc.invalidateQueries({ queryKey: ["customer-ledger"] });
+          qc.invalidateQueries({ queryKey: ["customer", id] });
+          qc.invalidateQueries({ queryKey: ["customer-ledger-preview", id] });
           qc.invalidateQueries({ queryKey: ["khata"] });
           qc.invalidateQueries({ queryKey: ["dashboard"] });
+          qc.invalidateQueries({ queryKey: ["reports"] });
         }}
       />
 
@@ -654,6 +720,7 @@ function CustomerProfilePage() {
         initial={c}
         onSaved={() => {
           qc.invalidateQueries({ queryKey: ["customer-ledger"] });
+          qc.invalidateQueries({ queryKey: ["customer", id] });
           qc.invalidateQueries({ queryKey: ["khata"] });
         }}
       />
@@ -680,6 +747,8 @@ function CustomerProfilePage() {
         customer={c}
         onSaved={() => {
           qc.invalidateQueries({ queryKey: ["customer-ledger"] });
+          qc.invalidateQueries({ queryKey: ["customer", id] });
+          qc.invalidateQueries({ queryKey: ["customer-ledger-preview", id] });
           qc.invalidateQueries({ queryKey: ["khata"] });
           qc.invalidateQueries({ queryKey: ["dashboard"] });
           qc.invalidateQueries({ queryKey: ["reports"] });

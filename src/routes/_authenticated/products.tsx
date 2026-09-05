@@ -13,6 +13,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -251,6 +260,9 @@ function ProductSheet({
     notes: "",
   }));
 
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Reset form when sheet opens
   useState(() => null);
   if (open && initial && form._id !== initial.id) {
@@ -324,117 +336,162 @@ function ProductSheet({
 
   async function deactivate() {
     if (!initial) return;
-    if (!confirm(`Remove "${initial.name}" from inventory?`)) return;
-    setBusy(true);
-    const { error } = await sb.from("products").update({ is_active: false }).eq("id", initial.id);
-    setBusy(false);
-    if (error) {
+    setIsDeleting(true);
+    try {
+      const { error } = await sb.from("products").update({ is_active: false }).eq("id", initial.id);
+      if (error) throw error;
+      SoundManager.play("completion");
+      toast.success("Product removed from inventory");
+      setDeleteConfirmOpen(false);
+      onSaved();
+      onOpenChange(false);
+    } catch (error) {
       console.error(error);
       SoundManager.play("error");
-      return toast.error("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
-    SoundManager.play("success");
-    toast.success("Product removed");
-    onSaved();
-    onOpenChange(false);
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-3xl max-h-[92vh] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>{initial ? "Edit product" : "New product"}</SheetTitle>
-        </SheetHeader>
+    <>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent side="bottom" className="rounded-t-3xl max-h-[92vh] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>{initial ? "Edit product" : "New product"}</SheetTitle>
+          </SheetHeader>
 
-        <div className="space-y-3 mt-4">
-          <Field label="Product name *">
-            <Input
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="e.g. Brake pad set"
-            />
-          </Field>
-
-          <Field label="Brand">
-            <Input
-              value={form.brand}
-              onChange={(e) => setForm({ ...form, brand: e.target.value })}
-              placeholder="e.g. Bosch"
-            />
-          </Field>
-
-          <Field label="Category">
-            <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
-              <SelectTrigger aria-label="Select category">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {PRODUCT_CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Purchase ₹">
+          <div className="space-y-3 mt-4">
+            <Field label="Product name *">
               <Input
-                inputMode="decimal"
-                value={form.purchase_price}
-                onChange={(e) => setForm({ ...form, purchase_price: e.target.value })}
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="e.g. Brake pad set"
               />
             </Field>
-            <Field label="Selling ₹ *">
+
+            <Field label="Brand">
               <Input
-                inputMode="decimal"
-                value={form.selling_price}
-                onChange={(e) => setForm({ ...form, selling_price: e.target.value })}
+                value={form.brand}
+                onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                placeholder="e.g. Bosch"
               />
             </Field>
+
+            <Field label="Category">
+              <Select
+                value={form.category}
+                onValueChange={(v) => setForm({ ...form, category: v })}
+              >
+                <SelectTrigger aria-label="Select category">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRODUCT_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Purchase ₹">
+                <Input
+                  inputMode="decimal"
+                  value={form.purchase_price}
+                  onChange={(e) => setForm({ ...form, purchase_price: e.target.value })}
+                />
+              </Field>
+              <Field label="Selling ₹ *">
+                <Input
+                  inputMode="decimal"
+                  value={form.selling_price}
+                  onChange={(e) => setForm({ ...form, selling_price: e.target.value })}
+                />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Stock qty">
+                <Input
+                  inputMode="numeric"
+                  value={form.stock_quantity}
+                  onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })}
+                />
+              </Field>
+              <Field label="Low stock alert">
+                <Input
+                  inputMode="numeric"
+                  value={form.low_stock_threshold}
+                  onChange={(e) => setForm({ ...form, low_stock_threshold: e.target.value })}
+                />
+              </Field>
+            </div>
+
+            <Field label="Notes">
+              <Textarea
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                rows={2}
+              />
+            </Field>
+
+            <div className="flex gap-2 pt-2">
+              {initial && canDelete && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDeleteConfirmOpen(true)}
+                  disabled={busy || isDeleting}
+                  className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20"
+                >
+                  Remove
+                </Button>
+              )}
+              {canEdit && (
+                <Button
+                  onClick={save}
+                  disabled={busy || isDeleting}
+                  className="flex-1"
+                  variant="hero"
+                >
+                  {busy ? "Saving…" : initial ? "Save changes" : "Add product"}
+                </Button>
+              )}
+            </div>
           </div>
+        </SheetContent>
+      </Sheet>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Stock qty">
-              <Input
-                inputMode="numeric"
-                value={form.stock_quantity}
-                onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })}
-              />
-            </Field>
-            <Field label="Low stock alert">
-              <Input
-                inputMode="numeric"
-                value={form.low_stock_threshold}
-                onChange={(e) => setForm({ ...form, low_stock_threshold: e.target.value })}
-              />
-            </Field>
-          </div>
-
-          <Field label="Notes">
-            <Textarea
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              rows={2}
-            />
-          </Field>
-
-          <div className="flex gap-2 pt-2">
-            {initial && canDelete && (
-              <Button variant="outline" onClick={deactivate} disabled={busy}>
-                Remove
-              </Button>
-            )}
-            {canEdit && (
-              <Button onClick={save} disabled={busy} className="flex-1" variant="hero">
-                {busy ? "Saving…" : initial ? "Save changes" : "Add product"}
-              </Button>
-            )}
-          </div>
-        </div>
-      </SheetContent>
-    </Sheet>
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent className="rounded-3xl max-w-sm w-[90vw]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold">Remove Product?</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm font-medium">
+              Are you sure you want to remove{" "}
+              <span className="font-bold text-foreground">"{initial?.name}"</span> from inventory?
+              Past invoices and transaction history referencing this product will be preserved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4">
+            <AlertDialogCancel disabled={isDeleting} className="rounded-xl h-12">
+              Cancel
+            </AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={deactivate}
+              disabled={isDeleting}
+              className="rounded-xl h-12 text-base font-bold shadow-sm"
+            >
+              {isDeleting ? "Removing..." : "Remove Product"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 
